@@ -1,6 +1,7 @@
 ---
 name: literature-synthesis
 description: "Use this skill for literature collection, paper comparison, theme coding, gap identification, reference organization, and turning source notes into a structured review"
+argument-hint: "Describe the topic, attach papers or notes, or point to repository literature files"
 ---
 
 # Literature Synthesis Skill
@@ -37,3 +38,11 @@ Use this skill when the task is to collect, compare, organize, or synthesize lit
 
 - Help reduce reading overload by ranking what must be read now, later, or not at all.
 - When reviewing student notes, identify where summary has replaced analysis.
+
+## Procedure
+
+1. Define the focal question and the adjacent literatures that genuinely affect it.
+2. Extract each study into a compact structure covering question, mechanism, method, findings, and limits.
+3. Cluster studies before drafting prose.
+4. Separate consensus, disagreement, and unresolved identification issues.
+5. End with the most defensible positioning options or next-reading priorities.

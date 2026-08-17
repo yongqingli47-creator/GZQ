@@ -1,3 +1,9 @@
+---
+description: "Build a reproducible data cleaning and analysis plan from attached data, code, notebooks, or variable lists."
+argument-hint: "Describe the dataset, variables, scripts, or cleaning problem"
+agent: "agent"
+---
+
 # Data Cleaning And Analysis Plan
 
 Review the attached dataset description, code, notebook, or variable list and produce a rigorous data workflow.

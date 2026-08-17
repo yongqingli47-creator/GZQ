@@ -1,3 +1,9 @@
+---
+description: "Draft a literature review organized by question, mechanism, identification, and findings."
+argument-hint: "Describe the research topic, attach notes, or reference repository literature"
+agent: "agent"
+---
+
 # Literature Review Builder
 
 You are helping me build a rigorous literature review.

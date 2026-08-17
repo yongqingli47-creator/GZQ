@@ -14,6 +14,7 @@ This workspace includes a minimal Stata workflow for macOS with local validation
 
 Run the workspace task:
 
+- `Research: verify all environments`
 - `Stata: verify environment`
 
 Expected output includes:
@@ -21,6 +22,8 @@ Expected output includes:
 - `STATA_SMOKE: START`
 - `STATA_ARITH: 4`
 - `STATA_SMOKE: OK`
+
+The Stata batch check also writes [stata_smoke.log](stata_smoke.log) in the workspace root, which is what the unified environment verifier reads.
 
 ## Daily usage
 

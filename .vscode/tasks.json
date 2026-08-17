@@ -25,6 +25,15 @@
       "problemMatcher": []
     },
     {
+      "label": "Research: verify all environments",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "${workspaceFolder}/scripts/verify_research_environment.py"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Stata: verify environment",
       "type": "shell",
       "command": "${workspaceFolder}/scripts/stata_exec.sh",
@@ -52,6 +61,15 @@
       "command": "${command:python.interpreterPath}",
       "args": [
         "${workspaceFolder}/scripts/zotero_sync.py"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Repository: validate Copilot customizations",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "${workspaceFolder}/scripts/validate_customizations.py"
       ],
       "problemMatcher": []
     }

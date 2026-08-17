@@ -1,6 +1,7 @@
 ---
 name: zotero-library-ops
 description: "Use this skill for Zotero API syncing, Better BibTeX grounded reference work, metadata extraction, abstract-based paper triage, and repository-based batch literature workflows"
+argument-hint: "Describe the topic, collection, library refresh need, or literature output you want"
 ---
 
 # Zotero Library Ops Skill
@@ -17,7 +18,7 @@ Use this skill when the task depends on repository-local Zotero resources or on 
 
 ## Typical Inputs
 
-- `literature/bib/library.bib`
+- `literature/bib/library.bib` when present, otherwise other `.bib` exports in `literature/bib/`
 - `literature/metadata/zotero_items.json`
 - `literature/metadata/zotero_items.md`
 - User-provided topic, question, mechanism, or paper set
@@ -34,10 +35,11 @@ Use this skill when the task depends on repository-local Zotero resources or on 
 ## Workflow
 
 1. Check whether the Zotero metadata snapshot is present and current enough.
-2. Identify the relevant subset of papers.
-3. Extract problem, mechanism, method, findings, and limits.
-4. Organize before drafting.
-5. Surface missing evidence or stale library risks.
+2. Check whether the preferred Better BibTeX export exists; if not, fall back to other `.bib` files in `literature/bib/`.
+3. Identify the relevant subset of papers.
+4. Extract problem, mechanism, method, findings, and limits.
+5. Organize before drafting.
+6. Surface missing evidence or stale library risks.
 
 ## Do Not
 

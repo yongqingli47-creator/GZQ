@@ -22,8 +22,8 @@ Then edit `.env`:
 
 ```env
 ZOTERO_LIBRARY_TYPE=user
-ZOTERO_USER_ID=21200666
-ZOTERO_API_KEY=yyBILMHuMd1nWjelZRnk8hiB
+ZOTERO_USER_ID=your_numeric_user_id
+ZOTERO_API_KEY=replace_with_private_key
 ZOTERO_COLLECTION_KEY=
 ```
 
@@ -48,6 +48,8 @@ literature/bib/innovation-review.bib
 literature/bib/board-governance.bib
 ```
 
+`library.bib` is the preferred default because repository prompts mention it first, but the prompts and skills can fall back to other `.bib` files in the same folder.
+
 ## 3. Prepare The VS Code Python Environment
 
 Create and activate the local environment:
@@ -64,21 +66,23 @@ The repository already includes:
 - `.vscode/settings.json` for interpreter and `.env` wiring
 - `.vscode/tasks.json` for one-click dependency install and metadata sync
 - `.vscode/extensions.json` for recommended extensions
+- `socksio` in `requirements.txt` so `pyzotero` can work when your shell exports SOCKS proxy variables
 
 ## 4. Sync Zotero Metadata And Abstracts
 
 Run the sync script from VS Code terminal:
 
 ```bash
-python scripts/zotero_sync.py
+./.venv/bin/python scripts/zotero_sync.py
 ```
 
 Optional examples:
 
 ```bash
-python scripts/zotero_sync.py --limit 50
-python scripts/zotero_sync.py --collection-key ABCD1234
-python scripts/zotero_sync.py --include-children
+./.venv/bin/python scripts/zotero_sync.py --limit 50
+./.venv/bin/python scripts/zotero_sync.py --collection-key ABCD1234
+./.venv/bin/python scripts/zotero_sync.py --include-children
+./.venv/bin/python scripts/zotero_sync.py --limit 1 --dry-run
 ```
 
 Generated outputs:
@@ -90,7 +94,7 @@ Generated outputs:
 
 1. Add or tag papers in Zotero.
 2. Let Better BibTeX update `literature/bib/library.bib`.
-3. Rerun `python scripts/zotero_sync.py`.
+3. Rerun `./.venv/bin/python scripts/zotero_sync.py`.
 4. Use repository prompt files and skills for literature organization, review drafting, and outline generation.
 
 ## 6. VS Code Tasks
@@ -98,4 +102,6 @@ Generated outputs:
 Open Command Palette, run `Tasks: Run Task`, then choose one of:
 
 - `Python: install research dependencies`
+- `Research: verify all environments`
 - `Zotero: sync metadata snapshot`
+- `Repository: validate Copilot customizations`

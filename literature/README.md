@@ -9,7 +9,8 @@ This folder holds repository-local literature resources.
 
 ## Expected Files
 
-- `bib/library.bib`: the main Better BibTeX export.
+- `bib/library.bib`: the preferred main Better BibTeX export.
+- `bib/*.bib`: optional collection-specific Better BibTeX exports used as fallbacks.
 - `metadata/zotero_items.json`: structured metadata and abstracts.
 - `metadata/zotero_items.md`: quick human-readable digest.
 

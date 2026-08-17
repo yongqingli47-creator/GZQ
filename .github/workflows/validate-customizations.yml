@@ -1,0 +1,56 @@
+name: Validate Copilot Customizations
+
+on:
+  pull_request:
+    paths:
+      - ".github/copilot-instructions.md"
+      - ".github/instructions/**"
+      - ".github/prompts/**"
+      - ".github/skills/**"
+      - ".vscode/settings.json"
+      - ".vscode/tasks.json"
+      - "AGENTS.md"
+      - "docs/research-agent-workflow.md"
+      - "docs/zotero-vscode-setup.md"
+      - "literature/README.md"
+      - "literature/bib/README.md"
+      - "scripts/validate_customizations.py"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/copilot-instructions.md"
+      - ".github/instructions/**"
+      - ".github/prompts/**"
+      - ".github/skills/**"
+      - ".vscode/settings.json"
+      - ".vscode/tasks.json"
+      - "AGENTS.md"
+      - "docs/research-agent-workflow.md"
+      - "docs/zotero-vscode-setup.md"
+      - "literature/README.md"
+      - "literature/bib/README.md"
+      - "scripts/validate_customizations.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-customizations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Copilot customizations
+        run: python scripts/validate_customizations.py
+
+      - name: Compile Python scripts
+        run: python -m compileall scripts

@@ -1,3 +1,9 @@
+---
+description: "Rewrite an economics or management paper section with tighter logic, cleaner claims, and clearer contribution framing."
+argument-hint: "Paste or attach the section to revise"
+agent: "agent"
+---
+
 # Paper Section Rewrite
 
 Rewrite the attached section for an economics or management research paper.

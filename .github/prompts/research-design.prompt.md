@@ -1,3 +1,9 @@
+---
+description: "Review a research idea, proposal, draft, or code as a research design reviewer."
+argument-hint: "Describe the claim, design, data, or attach the draft or code"
+agent: "agent"
+---
+
 # Research Design Reviewer
 
 Review the attached idea, proposal, draft, code, or notes as a research design reviewer.

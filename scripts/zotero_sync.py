@@ -6,8 +6,23 @@ import os
 from pathlib import Path
 from typing import Any
 
-from dotenv import load_dotenv
-from pyzotero import zotero
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError as exc:
+    if exc.name == "dotenv":
+        raise SystemExit(
+            "Missing dependency 'python-dotenv'. Use ./.venv/bin/python or run the 'Python: install research dependencies' task."
+        ) from exc
+    raise
+
+try:
+    from pyzotero import zotero
+except ModuleNotFoundError as exc:
+    if exc.name == "pyzotero":
+        raise SystemExit(
+            "Missing dependency 'pyzotero'. Use ./.venv/bin/python or run the 'Python: install research dependencies' task."
+        ) from exc
+    raise
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +60,11 @@ def parse_args() -> argparse.Namespace:
         "--output-md",
         default=None,
         help="Override Markdown output path.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate API access without writing output files.",
     )
     return parser.parse_args()
 
@@ -202,6 +222,14 @@ def main() -> None:
     normalized_items.sort(key=lambda item: ((item["year"] or "0000"), item["title"].lower()), reverse=True)
     if limit is not None:
         normalized_items = normalized_items[:limit]
+
+    if args.dry_run:
+        print(f"Verified Zotero access for {len(normalized_items)} items.")
+        if normalized_items:
+            print(f"First item: {normalized_items[0]['title']}")
+        if collection_key:
+            print(f"Collection key: {collection_key}")
+        return
 
     write_json(output_json, normalized_items)
     write_markdown(output_md, normalized_items)

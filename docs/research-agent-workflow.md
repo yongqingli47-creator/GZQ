@@ -4,7 +4,7 @@ This repository now supports literature-grounded AI workflows through repository
 
 ## Literature Sources The Agent Should Read
 
-1. `literature/bib/library.bib` or collection-specific `.bib` files
+1. `literature/bib/library.bib` when present, otherwise collection-specific `.bib` files in the same folder
 2. `literature/metadata/zotero_items.json`
 3. `literature/metadata/zotero_items.md`
 
@@ -52,5 +52,6 @@ Use /zotero-review-outline and convert the current literature set into a paper o
 ## Quality Control
 
 - Refresh the metadata snapshot before major literature tasks.
+- Run the `Repository: validate Copilot customizations` task after changing prompt files, skills, instructions, or agent workflow guidance.
 - Treat abstract-based synthesis as a screening layer, not a substitute for full-paper verification.
 - Narrow to a collection or topic if the library is too broad for a precise review.

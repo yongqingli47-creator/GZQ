@@ -1,6 +1,7 @@
 ---
 name: empirical-analysis
 description: "Use this skill for empirical research tasks involving data cleaning, variable construction, estimation strategy, robustness checks, reproducibility, or notebook and script review"
+argument-hint: "Describe the data, variables, scripts, identification concern, or analysis task"
 ---
 
 # Empirical Analysis Skill
@@ -32,3 +33,11 @@ Use this skill for data cleaning, data construction, empirical analysis, and est
 - Keep paths, seeds, and environment assumptions explicit.
 - When reviewing notebooks, separate exploratory cells from reproducible pipeline logic.
 - When asked to clean data, propose a pipeline covering import, schema checks, type conversion, duplicate handling, missing values, outlier rules, derived variables, validation, and export.
+
+## Procedure
+
+1. Restate the empirical objective, unit of analysis, and expected output.
+2. Separate observed facts from assumptions about the data or identification strategy.
+3. Propose the smallest reproducible pipeline that can expose schema, sample, or measurement risks quickly.
+4. Define the baseline analysis and the first falsification or robustness checks.
+5. End with the exact validation outputs or files needed before widening scope.

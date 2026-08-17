@@ -21,10 +21,13 @@ Recommended next step:
 
 Open this folder in VS Code, keep GitHub Copilot enabled, and invoke prompt files with `/` in chat after confirming `chat.promptFiles` is enabled.
 
+For ongoing maintenance, run the `Repository: validate Copilot customizations` task after editing prompts, skills, instructions, or agent guidance files.
+
 ## Stata In VS Code
 
 This workspace is now prepared for local Stata usage on macOS.
 
+- Run `Research: verify all environments` for a single workspace-wide health check covering Stata, PostgreSQL, and Zotero.
 - VS Code settings include a Stata MCP path pointing to `/Applications/StataNow` with MP edition selected.
 - Workspace tasks include `Stata: verify environment` and `Stata: run current file`.
 - The wrapper script `scripts/stata_exec.sh` auto-detects common Stata app bundles if the install location changes.
@@ -36,11 +39,14 @@ Use [docs/stata-vscode-setup.md](docs/stata-vscode-setup.md) for the full workfl
 This repository now includes a VS Code + Zotero workflow built around:
 
 - Zotero official API via `pyzotero`
-- Better BibTeX auto-export into `literature/bib/`
+- `socksio` support so Zotero requests remain stable when the shell exports SOCKS proxy variables
+- Better BibTeX auto-export into `literature/bib/`, with `library.bib` preferred but not required
 - Repository-local metadata snapshots in `literature/metadata/`
 - Prompt files and skills for batch literature organization and review drafting
 
 Start with [docs/zotero-vscode-setup.md](docs/zotero-vscode-setup.md) for the end-to-end setup.
+
+For a no-write connectivity check, run `./.venv/bin/python scripts/zotero_sync.py --limit 1 --dry-run`.
 
 ## PostgreSQL In VS Code
 
@@ -49,6 +55,8 @@ This workspace is now prepared for local PostgreSQL usage on macOS with a Homebr
 - Use TCP loopback settings in `.env` so VS Code Agent and sandboxed commands avoid local socket path issues.
 - Install Python database dependencies with `Python: install research dependencies`.
 - Run `PostgreSQL: verify environment` to confirm Python connectivity and PostGIS availability against the configured database.
+- For a workspace-wide check, run `Research: verify all environments`.
+- If you call scripts directly from a shell without activating the environment, prefer `./.venv/bin/python` over the system `python3`.
 
 Recommended `.env` baseline:
 

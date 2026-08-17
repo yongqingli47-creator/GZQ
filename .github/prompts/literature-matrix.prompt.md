@@ -1,3 +1,9 @@
+---
+description: "Build a structured literature matrix from papers, notes, citations, or a topic description."
+argument-hint: "Describe the topic, attach papers, or point to repository literature files"
+agent: "agent"
+---
+
 # Literature Matrix Builder
 
 Build a structured literature matrix from the attached papers, notes, citations, or topic description.

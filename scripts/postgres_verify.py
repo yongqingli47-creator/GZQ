@@ -5,9 +5,24 @@ import os
 from pathlib import Path
 from typing import Any
 
-from dotenv import load_dotenv
-import psycopg
-from psycopg.rows import dict_row
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError as exc:
+    if exc.name == "dotenv":
+        raise SystemExit(
+            "Missing dependency 'python-dotenv'. Use ./.venv/bin/python or run the 'Python: install research dependencies' task."
+        ) from exc
+    raise
+
+try:
+    import psycopg
+    from psycopg.rows import dict_row
+except ModuleNotFoundError as exc:
+    if exc.name in {"psycopg", "psycopg_binary"}:
+        raise SystemExit(
+            "Missing dependency 'psycopg'. Use ./.venv/bin/python or run the 'Python: install research dependencies' task."
+        ) from exc
+    raise
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +36,11 @@ def parse_args() -> argparse.Namespace:
         "--require-postgis",
         action="store_true",
         help="Fail if PostGIS is not available in the connected database cluster.",
+    )
+    parser.add_argument(
+        "--require-postgis-installed",
+        action="store_true",
+        help="Fail if the postgis extension is not installed in the connected database.",
     )
     return parser.parse_args()
 
@@ -96,9 +116,16 @@ def main() -> None:
         print(f"PostGIS installed in current database: {installed_version}")
     else:
         print("PostGIS is available but not installed in the current database.")
+        database_name = identity["current_database"]
+        print(
+            "Install it with: "
+            f"psql -d {database_name} -c 'CREATE EXTENSION postgis;'"
+        )
 
     if args.require_postgis and not postgis_available.get("default_version"):
         raise SystemExit("PostGIS is not available in this PostgreSQL installation.")
+    if args.require_postgis_installed and not installed_version:
+        raise SystemExit("PostGIS is not installed in the connected database.")
 
 
 if __name__ == "__main__":
