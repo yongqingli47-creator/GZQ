@@ -1,0 +1,22 @@
+# Zotero Review And Outline Builder
+
+Use the repository literature resources to draft a review structure and a paper outline.
+
+Task:
+
+1. Read `literature/metadata/zotero_items.json`, `literature/metadata/zotero_items.md`, and `literature/bib/library.bib` when available.
+2. Infer the most relevant literature subset for my topic.
+3. Produce a literature review structure organized by question, mechanism, identification, and findings.
+4. Convert that structure into a paper outline with section goals and candidate references for each section.
+5. State what still needs full-text verification.
+
+Output format:
+
+- Research question
+- Literature map
+- Review section structure
+- Paper outline
+- Reference placement
+- Verification gaps
+
+If the current repository sources are too broad, first propose a narrower scope and proceed with that scope.

@@ -1,0 +1,39 @@
+---
+name: literature-synthesis
+description: "Use this skill for literature collection, paper comparison, theme coding, gap identification, reference organization, and turning source notes into a structured review"
+---
+
+# Literature Synthesis Skill
+
+Use this skill when the task is to collect, compare, organize, or synthesize literature.
+
+## Core Rules
+
+1. Organize literature by problem, mechanism, method, and findings.
+2. Distinguish seminal papers, mainstream evidence, and peripheral extensions.
+3. Treat contradictory findings as an analytical target, not as noise.
+4. Do not call something a research gap unless the missing piece matters for theory, identification, or external validity.
+5. Prefer structured notes that can be converted into a review section or reading list.
+
+## What To Extract From Each Paper
+
+- Research question
+- Theory or mechanism
+- Data and sample
+- Identification or method
+- Main findings
+- Limitations
+- Usefulness for the current project
+
+## Output Shape
+
+- Topic map
+- Key paper clusters
+- Agreements and disagreements
+- Real gap versus superficial gap
+- Reading priority list
+
+## Supervisor Use
+
+- Help reduce reading overload by ranking what must be read now, later, or not at all.
+- When reviewing student notes, identify where summary has replaced analysis.

@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-toolsai.jupyter",
+    "deepecon.stata-mcp",
+    "kylebarron.stata-enhanced",
+    "github.copilot",
+    "github.copilot-chat"
+  ]
+}
