@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from importlib.util import find_spec
 from pathlib import Path
 import subprocess
 import sys
@@ -80,6 +81,27 @@ def verify_postgres(require_postgis_installed: bool) -> CheckResult:
     return CheckResult("PostgreSQL", True, summary, lines)
 
 
+def verify_python_tools() -> CheckResult:
+    packages = {
+        "python-dotenv": "dotenv",
+        "pandas": "pandas",
+        "openpyxl": "openpyxl",
+        "PyMuPDF": "fitz",
+        "pdfplumber": "pdfplumber",
+        "psycopg": "psycopg",
+        "pyzotero": "pyzotero",
+    }
+    missing = [package for package, module in packages.items() if find_spec(module) is None]
+    if missing:
+        return CheckResult(
+            "Python research tools",
+            False,
+            "missing required packages",
+            [", ".join(missing), "Run ./.venv/bin/python -m pip install -r requirements.txt"],
+        )
+    return CheckResult("Python research tools", True, "data, PDF, and Zotero packages available", [])
+
+
 def verify_stata() -> CheckResult:
     if STATA_LOG_PATH.exists():
         STATA_LOG_PATH.unlink()
@@ -140,6 +162,7 @@ def main() -> int:
     args = parse_args()
     results: list[CheckResult] = []
 
+    results.append(verify_python_tools())
     if not args.skip_stata:
         results.append(verify_stata())
     if not args.skip_postgres:
