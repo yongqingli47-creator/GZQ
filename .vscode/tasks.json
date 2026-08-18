@@ -65,7 +65,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Repository: validate Copilot customizations",
+      "label": "Repository: validate agent customizations",
       "type": "shell",
       "command": "${command:python.interpreterPath}",
       "args": [

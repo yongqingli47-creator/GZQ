@@ -78,6 +78,32 @@ def collect_errors() -> list[str]:
     for path in sorted((ROOT / ".github" / "skills").glob("*/SKILL.md")):
         errors.extend(validate_skill(path))
 
+    github_skills = {
+        path.parent.name: path
+        for path in (ROOT / ".github" / "skills").glob("*/SKILL.md")
+    }
+    codex_skills = {
+        path.parent.name: path
+        for path in (ROOT / ".agents" / "skills").glob("*/SKILL.md")
+    }
+    for path in sorted(codex_skills.values()):
+        errors.extend(validate_skill(path))
+
+    missing_from_codex = sorted(github_skills.keys() - codex_skills.keys())
+    missing_from_github = sorted(codex_skills.keys() - github_skills.keys())
+    if missing_from_codex:
+        errors.append(
+            ".agents/skills: missing Codex copies for " + ", ".join(missing_from_codex)
+        )
+    if missing_from_github:
+        errors.append(
+            ".github/skills: missing Copilot copies for " + ", ".join(missing_from_github)
+        )
+
+    for name in sorted(github_skills.keys() & codex_skills.keys()):
+        if github_skills[name].read_bytes() != codex_skills[name].read_bytes():
+            errors.append(f"skill '{name}': .github and .agents SKILL.md files differ")
+
     for path in sorted((ROOT / ".github" / "instructions").glob("*.instructions.md")):
         errors.extend(validate_instruction(path))
 

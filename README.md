@@ -1,6 +1,7 @@
-# GitHub Copilot Customization Starter Kit
+# Research Agent Workspace
 
-This folder contains a curated starter kit for GitHub Copilot customizations.
+This workspace supports literature review, empirical analysis, academic writing,
+Zotero synchronization, Stata, and PostgreSQL workflows in Codex and GitHub Copilot.
 
 What is included:
 
@@ -8,7 +9,8 @@ What is included:
 - Agent workflow guidance in `AGENTS.md`
 - Path-specific workflow instructions in `.github/instructions/`
 - Reusable prompt files in `.github/prompts/`
-- Reusable skills in `.github/skills/`
+- Codex skills in `.agents/skills/`
+- Matching GitHub Copilot skills in `.github/skills/`
 - VS Code workspace settings in `.vscode/settings.json`
 
 Source basis:
@@ -17,11 +19,15 @@ Source basis:
 - GitHub Docs customization library: code review, debugging, testing automation, and GitHub Actions helper
 - GitHub official repositories: skill directory structure and `SKILL.md` format
 
+Codex loads repository skills from `.agents/skills/`. After changing a skill, keep
+its matching `.github/skills/` copy identical and run the validation task. Restart
+Codex if a newly added skill does not appear in `/skills` or `$` completion.
+
 Recommended next step:
 
 Open this folder in VS Code, keep GitHub Copilot enabled, and invoke prompt files with `/` in chat after confirming `chat.promptFiles` is enabled.
 
-For ongoing maintenance, run the `Repository: validate Copilot customizations` task after editing prompts, skills, instructions, or agent guidance files.
+For ongoing maintenance, run the `Repository: validate agent customizations` task after editing prompts, skills, instructions, or agent guidance files.
 
 ## Stata In VS Code
 
