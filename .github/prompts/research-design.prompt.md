@@ -25,4 +25,11 @@ Output format:
 - Minimum fixes before proceeding
 - Stronger alternative designs
 
+Tool selection logic:
+
+- Start from the attached draft, code, notes, or repository files before suggesting any external tool.
+- If the main bottleneck is literature positioning, recommend repository literature prompts or retrieval tools before proposing redesign.
+- If the main bottleneck is implementation in Stata, R, Jupyter, or causal ML, recommend the matching execution stack rather than generic tooling.
+- Do not recommend advanced causal packages unless the identification question actually justifies them.
+
 If code or scripts are attached, connect methodological concerns to the implementation details.

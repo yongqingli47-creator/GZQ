@@ -39,6 +39,14 @@ Use this skill when the task is to collect, compare, organize, or synthesize lit
 - Help reduce reading overload by ranking what must be read now, later, or not at all.
 - When reviewing student notes, identify where summary has replaced analysis.
 
+## External Retrieval And Verification Stack
+
+- Start from repository-local Zotero exports before any live retrieval.
+- Use `54yyyu/zotero-mcp` or `cookjohn/zotero-mcp` when the task needs live Zotero interaction rather than the local snapshot.
+- Use `openags/paper-search-mcp`, `oksure/openalex-research-mcp`, or `xiuyechen/semantic-scholar-mcp` when the local library is too narrow to cover the target question.
+- Use `JonasBaath/mcp-refchecker` when citation validity is a binding risk.
+- Use `Stanford STORM` or `PaperQA2` for exploratory topic mapping, not as substitutes for source-grounded claims about findings.
+
 ## Procedure
 
 1. Define the focal question and the adjacent literatures that genuinely affect it.

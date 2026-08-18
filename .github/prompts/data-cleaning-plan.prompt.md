@@ -26,4 +26,11 @@ Output format:
 - Baseline analysis plan
 - Robustness priorities
 
+Tool selection logic:
+
+- Start from the attached data, scripts, notebooks, and repository environment.
+- Recommend Stata, R, or Jupyter execution tooling only when the bottleneck is reproducible execution, inspection, or kernel control.
+- Recommend causal or machine-learning packages only after the cleaning and baseline analysis path is clear.
+- Keep external tool suggestions tied to a concrete implementation need, not as generic upgrades.
+
 Prefer a plan that can be translated directly into code or a student task list.

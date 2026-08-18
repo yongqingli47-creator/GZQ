@@ -21,3 +21,11 @@ Output format:
 - Revised version
 - Top 3 weaknesses in the original
 - Why the revision is stronger
+
+Tool selection logic:
+
+- Rewrite directly from the attached section before suggesting any external tool.
+- If the section's main weakness is literature positioning, recommend a literature review or literature matrix workflow.
+- If the main weakness is economics-style framing, apply economics-writing discipline rather than generic polishing.
+- If the section is headed into journal-style review or collaborative manuscript revision, note peer-review simulation or Overleaf tooling only when that changes the revision path.
+- Do not recommend de-AI or humanizer tools as a substitute for better logic and evidence alignment.

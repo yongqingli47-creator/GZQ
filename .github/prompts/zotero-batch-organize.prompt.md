@@ -25,4 +25,11 @@ Output format:
 - Missing information
 - Next reading moves
 
+Tool selection logic:
+
+- Use repository-local Zotero exports first.
+- Suggest live Zotero tooling only when the checked-in snapshot is stale, sparse, or misaligned with the requested topic.
+- Suggest external literature search only when the current library cannot support a credible clustering.
+- Suggest systematic screening tools only when the paper set is large enough that manual title and abstract triage is inefficient.
+
 If I do not specify a topic, infer one from the most common themes in the repository library files.

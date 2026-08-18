@@ -29,6 +29,13 @@ Use this skill when the task is to improve scholarly writing without weakening p
 - Proposed rewrite
 - Why this is stronger
 
+## External Writing And Review References
+
+- Use `hanlulong/econ-writing-skill` as the preferred external reference for economics-style argument, contribution, and prose discipline.
+- Use `claesbackman/AI-research-feedback`, `poldrack/ai-peer-review`, or `kenwilliford/claude-peer-review` when the task benefits from simulated reviewer disagreement or editor-style arbitration.
+- Use `mjyoo2/OverleafMCP` only when revision must stay synchronized with an Overleaf manuscript workflow.
+- Do not route writing tasks through de-AI or "humanizer" tools. Improve precision, evidence alignment, and paragraph logic directly.
+
 ## Procedure
 
 1. Identify the exact claim the passage needs to carry.

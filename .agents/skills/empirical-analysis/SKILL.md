@@ -34,6 +34,14 @@ Use this skill for data cleaning, data construction, empirical analysis, and est
 - When reviewing notebooks, separate exploratory cells from reproducible pipeline logic.
 - When asked to clean data, propose a pipeline covering import, schema checks, type conversion, duplicate handling, missing values, outlier rules, derived variables, validation, and export.
 
+## External Analysis Stack
+
+- Use `SepineTam/stata-mcp` or `hanlulong/stata-mcp` when the task is Stata-centered and benefits from command execution, result capture, or data browsing.
+- Use `posit-dev/mcptools` or `gojiplus/r-econometrics-mcp` when the task is R-centered and requires econometric workflows rather than general scripting.
+- Use `datalayer/jupyter-mcp-server` when notebook orchestration or kernel control is the bottleneck.
+- Use `py-why/EconML`, `DoubleML/doubleml-for-py`, `py-why/DoWhy`, or `uber/causalml` when heterogeneous treatment effects, double machine learning, or causal graph workflows are substantively justified.
+- Treat packages and MCP servers as implementation layers. They do not substitute for explicit identification assumptions, sample design, or robustness logic.
+
 ## Procedure
 
 1. Restate the empirical objective, unit of analysis, and expected output.

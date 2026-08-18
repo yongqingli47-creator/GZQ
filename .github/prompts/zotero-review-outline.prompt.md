@@ -25,4 +25,12 @@ Output format:
 - Reference placement
 - Verification gaps
 
+Tool selection logic:
+
+- Treat repository Zotero exports as the default source base.
+- If the snapshot is stale or the target topic is under-covered, first say so explicitly.
+- Upgrade to live Zotero tooling when the task depends on current collections, tags, or recently added papers.
+- Upgrade to OpenAlex, Semantic Scholar, or paper-search tools only if topic expansion is necessary after narrowing the scope.
+- Recommend citation-checking tools before finalizing a reference-heavy outline when metadata quality is uncertain.
+
 If the current repository sources are too broad, first propose a narrower scope and proceed with that scope.

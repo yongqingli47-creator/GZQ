@@ -32,6 +32,14 @@ Use this skill when the task depends on repository-local Zotero resources or on 
 - Review section outlines
 - Paper or dissertation chapter outlines anchored to specific references
 
+## External Augmentation Hierarchy
+
+- Keep repository-local exports as the default working set.
+- Use `54yyyu/zotero-mcp` or `cookjohn/zotero-mcp` when live Zotero state matters more than the checked-in snapshot.
+- Use `openags/paper-search-mcp`, `oksure/openalex-research-mcp`, `xiuyechen/semantic-scholar-mcp`, or `cyanheads/pubmed-mcp-server` when topic expansion is required.
+- Use `JonasBaath/mcp-refchecker` before finalizing references for review memos, literature sections, or proposals.
+- Use `ASReview` when a systematic screening workflow is needed for large title and abstract sets.
+
 ## Workflow
 
 1. Check whether the Zotero metadata snapshot is present and current enough.

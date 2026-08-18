@@ -25,4 +25,11 @@ Then provide:
 - The most important disagreements in the literature
 - Which papers are essential reading first
 
+Tool selection logic:
+
+- Start with repository-local literature files and attached papers before proposing outside search.
+- Use live Zotero tooling only when the local library snapshot is clearly outdated or missing a relevant collection.
+- Use external search tools only to fill a defined coverage gap, not to widen scope by default.
+- Use citation-verification tools when duplicate records, missing metadata, or suspect references would weaken the matrix.
+
 If the attached material is incomplete, infer a provisional matrix structure and state what is still missing.

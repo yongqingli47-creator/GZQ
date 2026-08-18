@@ -26,6 +26,14 @@ Output format:
 - Gap assessment
 - Positioning options
 
+Tool selection logic:
+
+- Start with repository-local literature files when they are available.
+- Escalate to live Zotero tooling only if the local snapshot is stale, incomplete, or topic coverage is clearly too narrow.
+- Escalate to broader retrieval tools such as OpenAlex, Semantic Scholar, or paper-search only when the review would otherwise be generic.
+- Escalate to citation-checking tools only when reference validity or metadata consistency is a material risk.
+- Use deep-research tools only for exploratory topic expansion, not to replace source-grounded synthesis.
+
 Prefer a synthesis that a doctoral student could directly convert into a review section outline.
 
 If the evidence I provide is thin, ask for the minimum additional inputs needed to avoid a generic review.
