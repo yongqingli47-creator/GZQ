@@ -1,0 +1,2091 @@
+
+  ___  ____  ____  ____  ____ ®
+ /__    /   ____/   /   ____/      StataNow 19.5
+___/   /   /___/   /   /___/       MP—Parallel Edition
+
+ Statistics and Data Science       Copyright 1985-2025 StataCorp LLC
+                                   StataCorp
+                                   4905 Lakeway Drive
+                                   College Station, Texas 77845 USA
+                                   800-782-8272        https://www.stata.com
+                                   979-696-4600        service@stata.com
+
+Stata license: Single-user 16-core  perpetual
+Serial number: 3851871377
+  Licensed to: Stata
+               StatCorp LLC
+
+Notes:
+      1. Stata is running in batch mode.
+      2. Unicode is supported; see help unicode_advice.
+      3. More than 2 billion observations are allowed; see help obs_advice.
+      4. Maximum number of variables is set to 5,000 but can be increased;
+          see help set_maxvar.
+
+. do 00_run_replication.do 
+
+. version 18.0
+
+. set more off
+
+. 
+. capture log close _all
+
+. 
+. foreach pkg in logout esttab reghdfe ivreghdfe {
+  2.     capture which `pkg'
+  3.     if _rc {
+  4.         di as txt "Installing missing package: `pkg'"
+  5.         if "`pkg'" == "esttab" {
+  6.             ssc install estout, replace
+  7.         }
+  8.         else {
+  9.             ssc install `pkg', replace
+ 10.         }
+ 11.     }
+ 12. }
+
+. 
+. do 程序.do
+
+. use 数据,replace
+
+. 
+. ***表AI 描述性统计
+. tabstat Innov AI_utilize Size Age ROA Leverage Growth Rdintensity ,s(N mean s
+> d min max) f(%12.4f) c(s)
+
+    Variable |            N         Mean           SD          Min          Max
+-------------+-----------------------------------------------------------------
+       Innov |   20241.0000       2.1503       1.1950       0.0000       9.1204
+  AI_utilize |   20241.0000       0.1442       0.4176       0.0000       3.9318
+        Size |   20241.0000      22.1657       1.2588      19.3167      26.4523
+         Age |   20241.0000       2.8646       0.3419       1.0986       3.6109
+         ROA |   20239.0000       0.0465       0.0639      -0.3730       0.2473
+    Leverage |   20241.0000       0.4009       0.1935       0.0274       0.9079
+      Growth |   20236.0000       0.1695       0.3499      -0.6576       4.0242
+ Rdintensity |   20241.0000       0.0533       0.0523       0.0000       0.4360
+-------------------------------------------------------------------------------
+
+. logout,save(描述性统计结果n)word replace:tabstat Innov AI_utilize Size Age RO
+> A Leverage Growth Rdintensity,s(N mean sd min max) f(%12.4f) c(s)            
+
+    Variable |            N         Mean           SD          Min          Max
+-------------+-----------------------------------------------------------------
+       Innov |   20241.0000       2.1503       1.1950       0.0000       9.1204
+  AI_utilize |   20241.0000       0.1442       0.4176       0.0000       3.9318
+        Size |   20241.0000      22.1657       1.2588      19.3167      26.4523
+         Age |   20241.0000       2.8646       0.3419       1.0986       3.6109
+         ROA |   20239.0000       0.0465       0.0639      -0.3730       0.2473
+    Leverage |   20241.0000       0.4009       0.1935       0.0274       0.9079
+      Growth |   20236.0000       0.1695       0.3499      -0.6576       4.0242
+ Rdintensity |   20241.0000       0.0533       0.0523       0.0000       0.4360
+-------------------------------------------------------------------------------
+
+描述性统计结果n.rtf
+dir
+
+. 
+. ****实证分析部分****
+. **表1 基准回归结果
+. global xx " Size Age ROA Leverage Growth Rdintensity" //控制变量
+
+. reghdfe Innov AI_utilize ,noabsorb  vce(cluster industry_group#year)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     20,241
+Absorbing 1 HDFE group                            F(   1,    839) =     199.37
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.0245
+                                                  Adj R-squared   =     0.0245
+                                                  Within R-sq.    =     0.0245
+Number of clusters (industry_group#year) =        840Root MSE     =     1.1803
+
+                  (Std. err. adjusted for 840 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .4479688   .0317265    14.12   0.000     .3856961    .5102414
+       _cons |   2.085758   .0251303    83.00   0.000     2.036432    2.135083
+------------------------------------------------------------------------------
+
+. est store m1
+
+. reghdfe Innov AI_utilize $xx ,noabsorb vce(cluster industry_group#year)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     20,236
+Absorbing 1 HDFE group                            F(   7,    839) =     124.09
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.2285
+                                                  Adj R-squared   =     0.2283
+                                                  Within R-sq.    =     0.2285
+Number of clusters (industry_group#year) =        840Root MSE     =     1.0498
+
+                  (Std. err. adjusted for 840 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |    .209655    .029284     7.16   0.000     .1521765    .2671335
+        Size |   .3884861   .0177002    21.95   0.000     .3537441     .423228
+         Age |    .078899   .0361989     2.18   0.030      .007848    .1499501
+         ROA |   1.897653   .1673749    11.34   0.000     1.569131    2.226176
+    Leverage |   .3211189   .0670619     4.79   0.000     .1894902    .4527476
+      Growth |  -.0936407   .0263663    -3.55   0.000    -.1453923   -.0418891
+ Rdintensity |   6.369104   .4581912    13.90   0.000     5.469768     7.26844
+       _cons |  -7.257409   .4190431   -17.32   0.000    -8.079905   -6.434913
+------------------------------------------------------------------------------
+
+. est store m2
+
+. reghdfe Innov AI_utilize $xx ,absorb(year)  vce(cluster industry_group#year)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     20,236
+Absorbing 1 HDFE group                            F(   7,    839) =     132.96
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.2321
+                                                  Adj R-squared   =     0.2314
+                                                  Within R-sq.    =     0.2065
+Number of clusters (industry_group#year) =        840Root MSE     =     1.0477
+
+                  (Std. err. adjusted for 840 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .1998951   .0285547     7.00   0.000     .1438481     .255942
+        Size |   .3817971   .0176944    21.58   0.000     .3470666    .4165277
+         Age |  -.0212844   .0309202    -0.69   0.491    -.0819744    .0394056
+         ROA |   1.899958   .1670311    11.37   0.000      1.57211    2.227806
+    Leverage |   .3465168    .066305     5.23   0.000     .2163737      .47666
+      Growth |  -.0917338   .0243925    -3.76   0.000    -.1396113   -.0438563
+ Rdintensity |   6.078222   .4277755    14.21   0.000     5.238586    6.917858
+       _cons |  -6.815855   .4070915   -16.74   0.000    -7.614893   -6.016818
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        14           0          14     |
+-----------------------------------------------------+
+
+. est store m3
+
+. reghdfe Innov AI_utilize $xx ,absorb(id year)  vce(cluster industry_group#yea
+> r)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.29
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7291
+                                                  Adj R-squared   =     0.6785
+                                                  Within R-sq.    =     0.0204
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6782
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0671167   .0206912     3.24   0.001     .0265037    .1077297
+        Size |   .2556212   .0238117    10.74   0.000     .2088831    .3023593
+         Age |   -.294975    .123595    -2.39   0.017    -.5375692   -.0523809
+         ROA |   .3768539   .1466337     2.57   0.010      .089039    .6646688
+    Leverage |  -.1680051   .0684233    -2.46   0.014    -.3023074   -.0337029
+      Growth |  -.0690554   .0191882    -3.60   0.000    -.1067183   -.0313925
+ Rdintensity |   2.032858   .3081891     6.60   0.000      1.42794    2.637776
+       _cons |  -2.716256   .5784375    -4.70   0.000    -3.851622    -1.58089
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m4
+
+. esttab m1 m2 m3 m4 using 基准回归结果.rtf, replace se compress nogap b(%7.4f)
+>  scalars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 基准回归结果.rtf not found)
+(output written to 基准回归结果.rtf)
+
+. 
+. **表2 基于不同AI技术应用对企业创新的影响
+. reghdfe Innov Learningbased $xx ,absorb(id year)  vce(cluster industry_group#
+> year)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.21
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7291
+                                                  Adj R-squared   =     0.6785
+                                                  Within R-sq.    =     0.0204
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6782
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+Learningba~d |   .0713145   .0227437     3.14   0.002     .0266729    .1159562
+        Size |   .2553222    .023781    10.74   0.000     .2086445    .3019998
+         Age |  -.2935009   .1236195    -2.37   0.018    -.5361433   -.0508585
+         ROA |   .3761342   .1467045     2.56   0.011     .0881802    .6640882
+    Leverage |  -.1680529   .0684233    -2.46   0.014    -.3023553   -.0337504
+      Growth |  -.0689277   .0191989    -3.59   0.000    -.1066116   -.0312438
+ Rdintensity |   2.037163   .3074451     6.63   0.000     1.433705    2.640621
+       _cons |   -2.71402   .5779588    -4.70   0.000    -3.848447   -1.579593
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m1
+
+. reghdfe Innov KRR $xx ,absorb(id year)  vce(cluster industry_group#year) //KR
+> R为知识表示与推理
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.52
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7290
+                                                  Adj R-squared   =     0.6783
+                                                  Within R-sq.    =     0.0198
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6784
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         KRR |  -.0056999   .0700585    -0.08   0.935    -.1432117     .131812
+        Size |   .2588308    .024091    10.74   0.000     .2115446     .306117
+         Age |  -.2968968   .1241616    -2.39   0.017    -.5406032   -.0531904
+         ROA |   .3646163   .1466506     2.49   0.013     .0767681    .6524646
+    Leverage |  -.1689698   .0684171    -2.47   0.014    -.3032601   -.0346795
+      Growth |  -.0694134   .0191768    -3.62   0.000    -.1070538   -.0317729
+ Rdintensity |   2.066213   .3096106     6.67   0.000     1.458504    2.673921
+       _cons |  -2.773102   .5835527    -4.75   0.000    -3.918509   -1.627696
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m2
+
+. reghdfe Innov NLP $xx ,absorb(id year)  vce(cluster industry_group#year) //NL
+> P为自然语言处理
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.42
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7290
+                                                  Adj R-squared   =     0.6784
+                                                  Within R-sq.    =     0.0199
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6783
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         NLP |   .0498108   .0345686     1.44   0.150    -.0180411    .1176626
+        Size |   .2579317   .0240672    10.72   0.000     .2106922    .3051712
+         Age |  -.2974455   .1240503    -2.40   0.017    -.5409335   -.0539575
+         ROA |   .3690869   .1465834     2.52   0.012     .0813707    .6568031
+    Leverage |  -.1693771   .0683781    -2.48   0.013    -.3035908   -.0351634
+      Growth |  -.0694222   .0191851    -3.62   0.000    -.1070791   -.0317653
+ Rdintensity |   2.059453   .3074361     6.70   0.000     1.456013    2.662894
+       _cons |  -2.753693   .5828009    -4.72   0.000    -3.897624   -1.609762
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m3
+
+. reghdfe Innov CV $xx ,absorb(id year)  vce(cluster industry_group#year) //CV
+> 为计算机视觉
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.01
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7292
+                                                  Adj R-squared   =     0.6786
+                                                  Within R-sq.    =     0.0208
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6780
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          CV |   .1284154    .032518     3.95   0.000     .0645887    .1922422
+        Size |   .2558388    .023828    10.74   0.000     .2090689    .3026088
+         Age |  -.2897219   .1240001    -2.34   0.020    -.5331113   -.0463326
+         ROA |   .3713336   .1471835     2.52   0.012     .0824394    .6602278
+    Leverage |  -.1666565   .0683722    -2.44   0.015    -.3008585   -.0324544
+      Growth |  -.0684489   .0192243    -3.56   0.000    -.1061826   -.0307151
+ Rdintensity |   2.036349   .3110262     6.55   0.000     1.425862    2.646836
+       _cons |  -2.735625   .5783506    -4.73   0.000    -3.870821   -1.600429
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m4
+
+. reghdfe Innov ML $xx ,absorb(id year)  vce(cluster industry_group#year) //ML
+> 为机器学习
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.17
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7290
+                                                  Adj R-squared   =     0.6784
+                                                  Within R-sq.    =     0.0199
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6783
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          ML |   .0575475   .0345311     1.67   0.096    -.0102307    .1253257
+        Size |   .2576738   .0240316    10.72   0.000     .2105041    .3048434
+         Age |  -.3002109   .1239268    -2.42   0.016    -.5434564   -.0569654
+         ROA |   .3701203   .1465778     2.53   0.012      .082415    .6578256
+    Leverage |   -.168106   .0683382    -2.46   0.014    -.3022414   -.0339706
+      Growth |  -.0695526   .0191816    -3.63   0.000    -.1072026   -.0319026
+ Rdintensity |   2.060288   .3083057     6.68   0.000      1.45514    2.665435
+       _cons |  -2.740605    .581812    -4.71   0.000    -3.882595   -1.598615
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m5
+
+. esttab m1 m2 m3 m4 m5 using 基于不同AI技术应用对企业创新的影响.rtf, replace s
+> e compress nogap b(%7.4f) scalars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 基于不同AI技术应用对企业创新的影响.rtf not found)
+(output written to 基于不同AI技术应用对企业创新的影响.rtf)
+
+. 
+. **内生性处理**
+. *1 表3 内生性处理Ⅰ：遗漏变量偏误检验
+. *全集
+. reghdfe Innov AI_utilize $xx ,absorb(id year)  vce(cluster industry_group#yea
+> r)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.29
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7291
+                                                  Adj R-squared   =     0.6785
+                                                  Within R-sq.    =     0.0204
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6782
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0671167   .0206912     3.24   0.001     .0265037    .1077297
+        Size |   .2556212   .0238117    10.74   0.000     .2088831    .3023593
+         Age |   -.294975    .123595    -2.39   0.017    -.5375692   -.0523809
+         ROA |   .3768539   .1466337     2.57   0.010      .089039    .6646688
+    Leverage |  -.1680051   .0684233    -2.46   0.014    -.3023074   -.0337029
+      Growth |  -.0690554   .0191882    -3.60   0.000    -.1067183   -.0313925
+ Rdintensity |   2.032858   .3081891     6.60   0.000      1.42794    2.637776
+       _cons |  -2.716256   .5784375    -4.70   0.000    -3.851622    -1.58089
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. scalar beta_x_full = _b[AI_utilize]
+
+. *(1)无控制变量和固定效应
+. reghdfe Innov AI_utilize ,noabsorb  vce(cluster industry_group#year)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     20,241
+Absorbing 1 HDFE group                            F(   1,    839) =     199.37
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.0245
+                                                  Adj R-squared   =     0.0245
+                                                  Within R-sq.    =     0.0245
+Number of clusters (industry_group#year) =        840Root MSE     =     1.1803
+
+                  (Std. err. adjusted for 840 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .4479688   .0317265    14.12   0.000     .3856961    .5102414
+       _cons |   2.085758   .0251303    83.00   0.000     2.036432    2.135083
+------------------------------------------------------------------------------
+
+. scalar beta_x_basic = _b[AI_utilize]
+
+. scalar F = abs(beta_x_full/ (beta_x_basic - beta_x_full))
+
+. display "Statistical measure F: " F
+Statistical measure F: .17622786
+
+. *（2）无控制变量，有固定效应
+. reghdfe Innov AI_utilize,absorb(id year) vce(cluster industry_group#year)
+(dropped 600 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,641
+Absorbing 2 HDFE groups                           F(   1,    833) =      17.71
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7238
+                                                  Adj R-squared   =     0.6723
+                                                  Within R-sq.    =     0.0012
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6846
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0924339   .0219649     4.21   0.000     .0493208     .135547
+       _cons |   2.149801   .0075214   285.82   0.000     2.135038    2.164564
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. scalar beta_x_nocontrol = _b[AI_utilize]
+
+. scalar F = abs(beta_x_full/ (beta_x_nocontrol - beta_x_full))
+
+. display "Statistical measure F: " F
+Statistical measure F: 2.6510395
+
+. *（3）有控制变量，有企业固定
+. reghdfe Innov AI_utilize $xx ,absorb(id)  vce(cluster industry_group#year)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 1 HDFE group                            F(   7,    833) =      90.55
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7249
+                                                  Adj R-squared   =     0.6738
+                                                  Within R-sq.    =     0.1440
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6832
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |    .073316   .0208693     3.51   0.000     .0323535    .1142786
+        Size |   .2985495   .0243748    12.25   0.000     .2507062    .3463928
+         Age |   .6301346   .0600289    10.50   0.000     .5123088    .7479603
+         ROA |   .3992462   .1504258     2.65   0.008      .103988    .6945044
+    Leverage |  -.2665164   .0700051    -3.81   0.000    -.4039236   -.1291092
+      Growth |   -.082862   .0200126    -4.14   0.000     -.122143   -.0435809
+ Rdintensity |   2.460913   .3166129     7.77   0.000      1.83946    3.082366
+       _cons |  -6.299896   .4599067   -13.70   0.000    -7.202608   -5.397184
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+-----------------------------------------------------+
+
+. scalar beta_x_firm = _b[AI_utilize]
+
+. scalar F = abs(beta_x_full/ (beta_x_firm - beta_x_full))
+
+. display "Statistical measure F: " F
+Statistical measure F: 10.826486
+
+. 
+. *2 表4 内生性处理Ⅱ
+. *PSM+heckman 对应表4的（1）——（3）列
+. reghdfe Innov treated $xx [fweight=_weight] ,absorb(id year) vce(cluster indu
+> stry_group#year) //PSM
+(dropped 766 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      7,468
+Absorbing 2 HDFE groups                           F(   7,    535) =      19.80
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.8188
+                                                  Adj R-squared   =     0.7684
+                                                  Within R-sq.    =     0.0362
+Number of clusters (industry_group#year) =        536Root MSE     =     0.6439
+
+                  (Std. err. adjusted for 536 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+     treated |   .1116208   .0527885     2.11   0.035     .0079227    .2153189
+        Size |   .3826985   .0493408     7.76   0.000     .2857731    .4796239
+         Age |  -.5175008   .3103969    -1.67   0.096    -1.127247    .0922455
+         ROA |   .0826023   .2596101     0.32   0.750    -.4273779    .5925825
+    Leverage |  -.1751857   .1389286    -1.26   0.208    -.4480983    .0977268
+      Growth |   -.055924   .0382269    -1.46   0.144    -.1310172    .0191691
+ Rdintensity |   2.030554   .4610187     4.40   0.000     1.124925    2.936182
+       _cons |  -4.650137   1.331975    -3.49   0.001     -7.26668   -2.033594
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1608           0        1608     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m1
+
+. probit Innov_dummy AI_utilize $xx OverseaBack i.year //heckman第一阶段
+
+Iteration 0:  Log likelihood = -14001.311  
+Iteration 1:  Log likelihood = -12709.344  
+Iteration 2:  Log likelihood = -12708.297  
+Iteration 3:  Log likelihood = -12708.297  
+
+Probit regression                                      Number of obs =  20,236
+                                                       LR chi2(21)   = 2586.03
+                                                       Prob > chi2   =  0.0000
+Log likelihood = -12708.297                            Pseudo R2     =  0.0923
+
+------------------------------------------------------------------------------
+ Innov_dummy | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .1054535   .0246949     4.27   0.000     .0570524    .1538546
+        Size |   .2668619   .0093141    28.65   0.000     .2486066    .2851171
+         Age |  -.0825396   .0320908    -2.57   0.010    -.1454365   -.0196428
+         ROA |   2.132085   .1745092    12.22   0.000     1.790053    2.474117
+    Leverage |   .4793026   .0652948     7.34   0.000     .3513272    .6072781
+      Growth |    -.05873   .0284268    -2.07   0.039    -.1144456   -.0030145
+ Rdintensity |   6.158671   .2264014    27.20   0.000     5.714932     6.60241
+ OverseaBack |   .0412944   .0203766     2.03   0.043      .001357    .0812318
+             |
+        year |
+       2010  |  -.2029841   .0861235    -2.36   0.018    -.3717831   -.0341852
+       2011  |  -.1143598   .0794842    -1.44   0.150     -.270146    .0414263
+       2012  |   .0388373   .0759527     0.51   0.609    -.1100273    .1877019
+       2013  |   .0255613   .0750936     0.34   0.734    -.1216194     .172742
+       2014  |   .0753422   .0752044     1.00   0.316    -.0720557    .2227401
+       2015  |   .0779514   .0743993     1.05   0.295    -.0678686    .2237714
+       2016  |    .088948   .0745422     1.19   0.233     -.057152    .2350481
+       2017  |   .1107647   .0739052     1.50   0.134    -.0340868    .2556162
+       2018  |   .1710364   .0728078     2.35   0.019     .0283358    .3137371
+       2019  |   .2375892   .0726925     3.27   0.001     .0951146    .3800639
+       2020  |    .298624   .0724782     4.12   0.000     .1565693    .4406787
+       2021  |   .2642196   .0721694     3.66   0.000     .1227702    .4056691
+       2022  |   .2320812   .0727268     3.19   0.001     .0895393    .3746232
+             |
+       _cons |  -6.536014   .2100724   -31.11   0.000    -6.947748    -6.12428
+------------------------------------------------------------------------------
+
+. est store m2
+
+. reghdfe Innov AI_utilize $xx imr OverseaBack, absorb(id year) vce(cluster ind
+> ustry_group#year) //heckman第二阶段
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   9,    833) =      24.34
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7293
+                                                  Adj R-squared   =     0.6787
+                                                  Within R-sq.    =     0.0209
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6780
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |     .10332   .0289248     3.57   0.000      .046546     .160094
+        Size |   .3585466   .0539165     6.65   0.000     .2527185    .4643748
+         Age |  -.3348226   .1220167    -2.74   0.006    -.5743189   -.0953264
+         ROA |   1.176497   .4368949     2.69   0.007     .3189525    2.034041
+    Leverage |   .0093007   .1209551     0.08   0.939    -.2281119    .2467132
+      Growth |  -.0933534   .0216924    -4.30   0.000    -.1359315   -.0507753
+ Rdintensity |   4.134501   1.214361     3.40   0.001     1.750934    6.518069
+         imr |  -1.056706   .5437215    -1.94   0.052    -2.123931    .0105197
+ OverseaBack |  -.0042554   .0174267    -0.24   0.807    -.0384608      .02995
+       _cons |  -4.602449    1.10046    -4.18   0.000    -6.762448   -2.442449
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m3
+
+. esttab m1 m2 m3 using 内生性处理2-1.rtf, replace se compress nogap b(%7.4f) s
+> calars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 内生性处理2-1.rtf not found)
+(output written to 内生性处理2-1.rtf)
+
+. 
+. *工具变量 对应表4的（4）、（5）列
+. *egen yins = group(industry_group year )
+. ivreghdfe Innov $xx (AI_utilize=IV),absorb(id year)  cluster(yins) first //2s
+> ls
+(dropped 828 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+First-stage regressions
+-----------------------
+
+
+First-stage regression of AI_utilize:
+
+Statistics robust to heteroskedasticity and clustering on yins
+Number of obs =                  18375
+Number of clusters (yins) =        833
+------------------------------------------------------------------------------
+             |               Robust
+  AI_utilize | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          IV |  -.0688576   .0122251    -5.63   0.000    -.0928203    -.044895
+        Size |   .0487566   .0075183     6.49   0.000     .0340198    .0634934
+         Age |   .0090181   .0422949     0.21   0.831    -.0738848    .0919211
+         ROA |  -.1998509   .0620825    -3.22   0.001    -.3215399   -.0781618
+    Leverage |  -.0052024   .0262983    -0.20   0.843    -.0567502    .0463453
+      Growth |  -.0067757   .0069929    -0.97   0.333    -.0204826    .0069313
+ Rdintensity |   .4747181   .1439773     3.30   0.001     .1925058    .7569305
+------------------------------------------------------------------------------
+F test of excluded instruments:
+  F(  1,   832) =    31.72
+  Prob > F      =   0.0000
+Sanderson-Windmeijer multivariate F test of excluded instruments:
+  F(  1,   832) =    31.72
+  Prob > F      =   0.0000
+
+
+
+Summary results for first-stage regressions
+-------------------------------------------
+
+                                           (Underid)            (Weak id)
+Variable     | F(  1,   832)  P-val | SW Chi-sq(  1) P-val | SW F(  1,   832)
+AI_utilize   |      31.72    0.0000 |       37.62   0.0000 |       31.72
+
+NB: first-stage test statistics cluster-robust
+
+Stock-Yogo weak ID F test critical values for single endogenous regressor:
+                                   10% maximal IV size             16.38
+                                   15% maximal IV size              8.96
+                                   20% maximal IV size              6.66
+                                   25% maximal IV size              5.53
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for i.i.d. errors only.
+
+Underidentification test
+Ho: matrix of reduced form coefficients has rank=K1-1 (underidentified)
+Ha: matrix has rank=K1 (identified)
+Kleibergen-Paap rk LM statistic          Chi-sq(1)=12.82    P-val=0.0003
+
+Weak identification test
+Ho: equation is weakly identified
+Cragg-Donald Wald F statistic                                     245.71
+Kleibergen-Paap Wald rk F statistic                                31.72
+
+Stock-Yogo weak ID test critical values for K1=1 and L1=1:
+                                   10% maximal IV size             16.38
+                                   15% maximal IV size              8.96
+                                   20% maximal IV size              6.66
+                                   25% maximal IV size              5.53
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+
+Weak-instrument-robust inference
+Tests of joint significance of endogenous regressors B1 in main equation
+Ho: B1=0 and orthogonality conditions are valid
+Anderson-Rubin Wald test           F(1,832)=       6.97     P-val=0.0084
+Anderson-Rubin Wald test           Chi-sq(1)=      8.27     P-val=0.0040
+Stock-Wright LM S statistic        Chi-sq(1)=      5.74     P-val=0.0166
+
+NB: Underidentification, weak identification and weak-identification-robust
+    test statistics cluster-robust
+
+Number of clusters             N_clust  =        833
+Number of observations               N  =      18375
+Number of regressors                 K  =          7
+Number of endogenous regressors      K1 =          1
+Number of instruments                L  =          7
+Number of excluded instruments       L1 =          1
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and clustering on yins
+
+Number of clusters (yins) =        833                Number of obs =    18375
+                                                      F(  7,   832) =    30.69
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  7388.148044                Centered R2   =   0.0000
+Total (uncentered) SS   =  7388.148044                Uncentered R2 =   0.0000
+Residual SS             =  7387.907443                Root MSE      =    .6901
+
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .4654198   .1994507     2.33   0.020     .0739342    .8569055
+        Size |   .2455535   .0251761     9.75   0.000     .1961372    .2949697
+         Age |  -.2764094   .1254357    -2.20   0.028     -.522617   -.0302018
+         ROA |   .4183903   .1561658     2.68   0.008      .111865    .7249155
+    Leverage |  -.1908128   .0710996    -2.68   0.007    -.3303685    -.051257
+      Growth |  -.0630187   .0194447    -3.24   0.001    -.1011851   -.0248523
+ Rdintensity |   1.808746   .3628465     4.98   0.000     1.096544    2.520948
+------------------------------------------------------------------------------
+Underidentification test (Kleibergen-Paap rk LM statistic):             12.819
+                                                   Chi-sq(1) P-val =    0.0003
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):              245.708
+                         (Kleibergen-Paap rk Wald F statistic):         31.725
+Stock-Yogo weak ID test critical values: 10% maximal IV size             16.38
+                                         15% maximal IV size              8.96
+                                         20% maximal IV size              6.66
+                                         25% maximal IV size              5.53
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Cragg-Donald F statistic and i.i.d. errors.
+------------------------------------------------------------------------------
+Hansen J statistic (overidentification test of all instruments):         0.000
+                                                 (equation exactly identified)
+------------------------------------------------------------------------------
+Instrumented:         AI_utilize
+Included instruments: Size Age ROA Leverage Growth Rdintensity
+Excluded instruments: IV
+Partialled-out:       _cons
+                      nb: total SS, model F and R2s are after partialling-out;
+                          any small-sample adjustments include partialled-out
+                          variables in regressor count K
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2843           0        2843     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. 
+. **稳健性检验**
+. *（1）表A2 稳健性检验Ⅰ 
+. *替换被解释变量 表A2的第（1）、（2）列
+. reghdfe Innov1 l2.AI_utilize $xx ,absorb(id year) vce(cluster industry_group#
+> year) 
+(dropped 460 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,927
+Absorbing 2 HDFE groups                           F(   7,    637) =      28.58
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7680
+                                                  Adj R-squared   =     0.7196
+                                                  Within R-sq.    =     0.0401
+Number of clusters (industry_group#year) =        638Root MSE     =     0.6773
+
+                  (Std. err. adjusted for 638 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+      Innov1 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |
+         L2. |    .065533   .0319494     2.05   0.041     .0027942    .1282718
+             |
+        Size |   .4412107   .0347868    12.68   0.000        .3729    .5095215
+         Age |  -.2631211    .199647    -1.32   0.188    -.6551669    .1289247
+         ROA |  -.5559759   .1684952    -3.30   0.001    -.8868491   -.2251028
+    Leverage |  -.1814313   .1099647    -1.65   0.099    -.3973683    .0345058
+      Growth |  -.0459778   .0243935    -1.88   0.060    -.0938792    .0019237
+ Rdintensity |   2.092715   .4783144     4.38   0.000     1.153452    3.031979
+       _cons |  -7.208747   .9246787    -7.80   0.000    -9.024534    -5.39296
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2041           0        2041     |
+        year |        12           1          11     |
+-----------------------------------------------------+
+
+. est store m1
+
+. reghdfe Innov1 l3.AI_utilize $xx ,absorb(id year)  vce(cluster industry_group
+> #year) 
+(dropped 382 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =      9,995
+Absorbing 2 HDFE groups                           F(   7,    564) =      24.39
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7792
+                                                  Adj R-squared   =     0.7293
+                                                  Within R-sq.    =     0.0413
+Number of clusters (industry_group#year) =        565Root MSE     =     0.6750
+
+                  (Std. err. adjusted for 565 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+      Innov1 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |
+         L3. |   .0522811   .0301742     1.73   0.084    -.0069865    .1115487
+             |
+        Size |   .4729519   .0415161    11.39   0.000      .391407    .5544969
+         Age |  -.4453134   .2477096    -1.80   0.073    -.9318594    .0412327
+         ROA |  -.7210722   .1871738    -3.85   0.000    -1.088715   -.3534294
+    Leverage |   -.332236   .1238408    -2.68   0.008    -.5754815   -.0889905
+      Growth |  -.0393428   .0270354    -1.46   0.146    -.0924451    .0137596
+ Rdintensity |   1.536032   .5764512     2.66   0.008     .4037787    2.668285
+       _cons |  -7.240975    1.17866    -6.14   0.000    -9.556075   -4.925874
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1826           0        1826     |
+        year |        11           1          10     |
+-----------------------------------------------------+
+
+. est store m2
+
+. *替换解释变量 表A2的第（3）列
+. reghdfe Innov AI_utilize1 $xx ,absorb(id year) vce(cluster industry_group#yea
+> r)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      30.34
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7291
+                                                  Adj R-squared   =     0.6785
+                                                  Within R-sq.    =     0.0202
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6782
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ AI_utilize1 |   1.316773   .4883705     2.70   0.007     .3581915    2.275354
+        Size |   .2575913   .0239742    10.74   0.000     .2105343    .3046483
+         Age |  -.2913019   .1237596    -2.35   0.019    -.5342192   -.0483845
+         ROA |   .3683906   .1466635     2.51   0.012     .0805172     .656264
+    Leverage |  -.1674811   .0684489    -2.45   0.015    -.3018338   -.0331284
+      Growth |  -.0696436   .0191682    -3.63   0.000    -.1072673   -.0320198
+ Rdintensity |   2.047758   .3090271     6.63   0.000     1.441194    2.654321
+       _cons |  -2.768549   .5821945    -4.76   0.000     -3.91129   -1.625809
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m3
+
+. *解释变量的滞后期 表A2的第（4）——（6）列
+. reghdfe Innov l.AI_utilize $xx ,absorb(id year) vce(cluster industry_group#ye
+> ar)
+(dropped 588 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     14,222
+Absorbing 2 HDFE groups                           F(   7,    706) =      21.09
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7491
+                                                  Adj R-squared   =     0.6995
+                                                  Within R-sq.    =     0.0205
+Number of clusters (industry_group#year) =        707Root MSE     =     0.6746
+
+                  (Std. err. adjusted for 707 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |
+         L1. |    .082693   .0266641     3.10   0.002     .0303425    .1350434
+             |
+        Size |   .2718078   .0309012     8.80   0.000     .2111386    .3324771
+         Age |  -.4936371    .168391    -2.93   0.003    -.8242443     -.16303
+         ROA |   .4315649   .1753094     2.46   0.014     .0873747    .7757551
+    Leverage |  -.0669135   .0837191    -0.80   0.424    -.2312817    .0974547
+      Growth |  -.0815216   .0237258    -3.44   0.001    -.1281031     -.03494
+ Rdintensity |   1.904081    .356369     5.34   0.000     1.204411    2.603751
+       _cons |  -2.379735   .7370022    -3.23   0.001    -3.826714    -.932757
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2330           0        2330     |
+        year |        13           1          12     |
+-----------------------------------------------------+
+
+. est store m4
+
+. reghdfe Innov l2.AI_utilize $xx ,absorb(id year) vce(cluster industry_group#y
+> ear)
+(dropped 460 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,927
+Absorbing 2 HDFE groups                           F(   7,    637) =      12.84
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7614
+                                                  Adj R-squared   =     0.7116
+                                                  Within R-sq.    =     0.0163
+Number of clusters (industry_group#year) =        638Root MSE     =     0.6733
+
+                  (Std. err. adjusted for 638 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |
+         L2. |    .070101   .0289054     2.43   0.016     .0133396    .1268624
+             |
+        Size |   .2551639   .0344424     7.41   0.000     .1875296    .3227982
+         Age |  -.5922176   .2173677    -2.72   0.007    -1.019062   -.1653737
+         ROA |   .2422479   .1864717     1.30   0.194    -.1239256    .6084214
+    Leverage |   .0095149   .0938557     0.10   0.919    -.1747891    .1938189
+      Growth |  -.0473315   .0232856    -2.03   0.043    -.0930572   -.0016058
+ Rdintensity |   1.589454   .3756777     4.23   0.000     .8517376    2.327171
+       _cons |  -1.690457   .8523565    -1.98   0.048    -3.364225   -.0166882
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2041           0        2041     |
+        year |        12           1          11     |
+-----------------------------------------------------+
+
+. est store m5
+
+. reghdfe Innov l3.AI_utilize $xx ,absorb(id year) vce(cluster industry_group#y
+> ear)
+(dropped 382 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =      9,995
+Absorbing 2 HDFE groups                           F(   7,    564) =      13.29
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7792
+                                                  Adj R-squared   =     0.7293
+                                                  Within R-sq.    =     0.0179
+Number of clusters (industry_group#year) =        565Root MSE     =     0.6674
+
+                  (Std. err. adjusted for 565 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |
+         L3. |   .0686829    .031536     2.18   0.030     .0067406    .1306252
+             |
+        Size |   .2873746   .0349176     8.23   0.000     .2187901    .3559591
+         Age |  -.5823419   .2918938    -2.00   0.047    -1.155674   -.0090103
+         ROA |   .1785727   .2069035     0.86   0.388    -.2278228    .5849683
+    Leverage |   -.111264   .1061038    -1.05   0.295    -.3196709    .0971429
+      Growth |  -.0550562   .0279018    -1.97   0.049    -.1098603    -.000252
+ Rdintensity |   1.422685     .46303     3.07   0.002     .5132116    2.332159
+       _cons |  -2.329629   .9632703    -2.42   0.016    -4.221664   -.4375936
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1826           0        1826     |
+        year |        11           1          10     |
+-----------------------------------------------------+
+
+. est store m6
+
+. esttab m1 m2 m3 m4 m5 m6 using 稳健性检验1.rtf, replace se compress nogap b(%
+> 7.4f) scalars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 稳健性检验1.rtf not found)
+(output written to 稳健性检验1.rtf)
+
+. 
+. *（2）表A4 稳健性检验Ⅱ 
+. *表A4的第（1）——（3）列 
+. reghdfe Innov AI_utilize $xx ,absorb(year id id#industry_group) vce(cluster i
+> ndustry_group#year) //调整固定效应
+(dropped 768 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,468
+Absorbing 3 HDFE groups                           F(   7,    819) =      27.27
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7385
+                                                  Adj R-squared   =     0.6855
+                                                  Within R-sq.    =     0.0200
+Number of clusters (industry_group#year) =        820Root MSE     =     0.6715
+
+                  (Std. err. adjusted for 820 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0768292   .0208288     3.69   0.000      .035945    .1177134
+        Size |    .268992   .0253996    10.59   0.000     .2191361    .3188479
+         Age |  -.3395781   .1350059    -2.52   0.012    -.6045763   -.0745798
+         ROA |   .2631319   .1524443     1.73   0.085    -.0360956    .5623594
+    Leverage |  -.1580333   .0672797    -2.35   0.019    -.2900942   -.0259725
+      Growth |  -.0557553   .0196783    -2.83   0.005    -.0943812   -.0171294
+ Rdintensity |   1.931443   .2923743     6.61   0.000     1.357552    2.505335
+       _cons |  -2.876289    .640012    -4.49   0.000    -4.132546   -1.620032
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-------------------------------------------------------------+
+         Absorbed FE | Categories  - Redundant  = Num. Coefs |
+---------------------+---------------------------------------|
+                year |        14           0          14     |
+                  id |      3055           1        3054     |
+   id#industry_group |      3263        3055         208    ?|
+-------------------------------------------------------------+
+? = number of redundant parameters may be higher
+
+. est store m1
+
+. reghdfe Innov AI_utilize $xx ,absorb(id year) vce(cluster id) //聚类至企业层
+> 面
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,   3071) =      15.28
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7291
+                                                  Adj R-squared   =     0.6785
+                                                  Within R-sq.    =     0.0204
+Number of clusters (id)      =      3,072         Root MSE        =     0.6782
+
+                                 (Std. err. adjusted for 3,072 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0671167   .0310163     2.16   0.031      .006302    .1279315
+        Size |   .2556212   .0301659     8.47   0.000     .1964737    .3147687
+         Age |   -.294975   .1693514    -1.74   0.082    -.6270285    .0370784
+         ROA |   .3768539   .1559539     2.42   0.016     .0710694    .6826384
+    Leverage |  -.1680051   .0931348    -1.80   0.071     -.350618    .0146077
+      Growth |  -.0690554   .0200426    -3.45   0.001    -.1083536   -.0297572
+ Rdintensity |   2.032858   .3481996     5.84   0.000      1.35013    2.715586
+       _cons |  -2.716256   .7500224    -3.62   0.000    -4.186853   -1.245659
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072        3072           0    *|
+        year |        14           1          13     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. est store m2
+
+. reghdfe Innov AI_utilize $xx HHI_资产 GDP增速,absorb(id year )  vce(cluster i
+> ndustry_group#year) //增加控制变量
+(dropped 559 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     18,389
+Absorbing 2 HDFE groups                           F(   9,    831) =      23.78
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7314
+                                                  Adj R-squared   =     0.6817
+                                                  Within R-sq.    =     0.0216
+Number of clusters (industry_group#year) =        832Root MSE     =     0.6824
+
+                  (Std. err. adjusted for 832 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0717496   .0216247     3.32   0.001     .0293041    .1141952
+        Size |   .2654896   .0246676    10.76   0.000     .2170715    .3139076
+         Age |  -.2807847    .128213    -2.19   0.029     -.532444   -.0291253
+         ROA |   .3406681   .1493321     2.28   0.023     .0475555    .6337806
+    Leverage |  -.1909698   .0706141    -2.70   0.007    -.3295727   -.0523669
+      Growth |  -.0655759   .0191861    -3.42   0.001    -.1032348   -.0279171
+ Rdintensity |   2.006333    .317415     6.32   0.000     1.383304    2.629362
+    HHI_资产 |   .2658359   .2035701     1.31   0.192    -.1337362    .6654081
+     GDP增速 |   .0005788   .0037106     0.16   0.876    -.0067045    .0078621
+       _cons |  -2.975651   .6142391    -4.84   0.000    -4.181294   -1.770009
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2847           0        2847     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m3
+
+. esttab m1 m2 m3 using 稳健性检验2-1.rtf, replace se compress nogap b(%7.4f) s
+> calars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 稳健性检验2-1.rtf not found)
+(output written to 稳健性检验2-1.rtf)
+
+. *表A4的第（4）列
+. drop if year<2014
+(3,997 observations deleted)
+
+. reghdfe Innov AI_utilize $xx ,absorb(id year) vce(cluster industry_group#year
+> ) //样本范围调整
+(dropped 625 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     15,617
+Absorbing 2 HDFE groups                           F(   7,    568) =      22.86
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7757
+                                                  Adj R-squared   =     0.7229
+                                                  Within R-sq.    =     0.0146
+Number of clusters (industry_group#year) =        569Root MSE     =     0.6414
+
+                  (Std. err. adjusted for 569 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0415675   .0194275     2.14   0.033      .003409    .0797259
+        Size |   .2409622   .0251292     9.59   0.000     .1916047    .2903196
+         Age |  -.3856052   .2506905    -1.54   0.125    -.8779988    .1067885
+         ROA |   .2393817   .1657236     1.44   0.149    -.0861241    .5648876
+    Leverage |  -.2227663   .0780257    -2.86   0.004    -.3760204   -.0695121
+      Growth |   -.046431    .018673    -2.49   0.013    -.0831076   -.0097545
+ Rdintensity |   1.859763   .3543912     5.25   0.000     1.163686     2.55584
+       _cons |  -2.005612   .7282073    -2.75   0.006     -3.43592   -.5753042
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2961           0        2961     |
+        year |         9           1           8     |
+-----------------------------------------------------+
+
+. est store m4
+
+. esttab  m4 using 稳健性检验2-2.rtf, replace se compress nogap b(%7.4f) scalar
+> s(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 稳健性检验2-2.rtf not found)
+(output written to 稳健性检验2-2.rtf)
+
+. 
+. ***作用机制检验***
+. use 数据,replace
+
+. *表5 作用机制检验
+. reghdfe K_diversity1 AI_utilize $xx ,absorb(id year)  vce(cluster industry_gr
+> oup#year) //K_diversity1为第一种知识多样性
+(dropped 598 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,635
+Absorbing 2 HDFE groups                           F(   7,    833) =       9.67
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.4888
+                                                  Adj R-squared   =     0.3933
+                                                  Within R-sq.    =     0.0044
+Number of clusters (industry_group#year) =        834Root MSE     =     0.2415
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+K_diversity1 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0113253   .0067925     1.67   0.096    -.0020071    .0246578
+        Size |   .0380594   .0061863     6.15   0.000     .0259168    .0502019
+         Age |   .0035041   .0410813     0.09   0.932     -.077131    .0841391
+         ROA |    .116302   .0522977     2.22   0.026     .0136513    .2189527
+    Leverage |  -.0362289   .0252937    -1.43   0.152    -.0858759     .013418
+      Growth |  -.0062405   .0068291    -0.91   0.361    -.0196448    .0071639
+ Rdintensity |   .4090914     .10703     3.82   0.000     .1990111    .6191716
+       _cons |  -.1698139   .1714308    -0.99   0.322     -.506301    .1666732
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m1
+
+. reghdfe K_diversity2 AI_utilize $xx ,absorb(id year)  vce(cluster industry_gr
+> oup#year) //K_diversity1为第二种知识多样性
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =       6.16
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6356
+                                                  Adj R-squared   =     0.5676
+                                                  Within R-sq.    =     0.0094
+Number of clusters (industry_group#year) =        834Root MSE     =     6.8578
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+K_diversity2 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .7881049   .2662649     2.96   0.003      .265476    1.310734
+        Size |    1.49986   .2707007     5.54   0.000     .9685246    2.031196
+         Age |  -5.863537   1.304778    -4.49   0.000    -8.424576   -3.302497
+         ROA |   2.183361   1.149973     1.90   0.058    -.0738242    4.440545
+    Leverage |  -.7494124   .6690882    -1.12   0.263    -2.062709    .5638845
+      Growth |  -.5284059   .1737396    -3.04   0.002    -.8694248   -.1873871
+ Rdintensity |   8.424474   3.542352     2.38   0.018     1.471489    15.37746
+       _cons |  -13.38951    4.87545    -2.75   0.006    -22.95912   -3.819899
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m2
+
+. reghdfe B_routines AI_utilize $xx ,absorb(id year)  vce(cluster industry_grou
+> p) //B_routines为打破组织惯例
+(dropped 596 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,589
+Absorbing 2 HDFE groups                           F(   7,     74) =       2.27
+Statistics robust to heteroskedasticity           Prob > F        =     0.0377
+                                                  R-squared       =     0.4531
+                                                  Adj R-squared   =     0.3507
+                                                  Within R-sq.    =     0.0009
+Number of clusters (industry_group) =         75  Root MSE        =     0.4864
+
+                        (Std. err. adjusted for 75 clusters in industry_group)
+------------------------------------------------------------------------------
+             |               Robust
+  B_routines | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0215149   .0083799     2.57   0.012     .0048175    .0382123
+        Size |   .0217803   .0134567     1.62   0.110    -.0050327    .0485933
+         Age |  -.1024663   .1252749    -0.82   0.416     -.352082    .1471494
+         ROA |  -.1989303   .1242789    -1.60   0.114    -.4465615    .0487009
+    Leverage |  -.0021458   .0556607    -0.04   0.969    -.1130522    .1087607
+      Growth |  -.0091701   .0146369    -0.63   0.533    -.0383347    .0199945
+ Rdintensity |  -.2012512   .3214712    -0.63   0.533    -.8417965    .4392941
+       _cons |    .538361   .5303173     1.02   0.313    -.5183192    1.595041
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3070           0        3070     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m3
+
+. reghdfe O_resource AI_utilize $xx ,absorb(id year)  vce(cluster industry_grou
+> p#year) //O_resource为资源配置效率
+(dropped 547 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     17,086
+Absorbing 2 HDFE groups                           F(   7,    810) =       7.52
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.3926
+                                                  Adj R-squared   =     0.2811
+                                                  Within R-sq.    =     0.0794
+Number of clusters (industry_group#year) =        811Root MSE     =     0.2306
+
+                  (Std. err. adjusted for 811 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+  O_resource | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |  -.0124368   .0046147    -2.70   0.007     -.021495   -.0033786
+        Size |   .0989008   .0276596     3.58   0.000     .0446079    .1531938
+         Age |  -.0801481   .0430533    -1.86   0.063    -.1646574    .0043611
+         ROA |  -.1418563   .0458975    -3.09   0.002    -.2319484   -.0517642
+    Leverage |  -.0172102   .0334809    -0.51   0.607    -.0829298    .0485094
+      Growth |   .1677987   .0268191     6.26   0.000     .1151555    .2204419
+ Rdintensity |   .3471137   .1082537     3.21   0.001     .1346228    .5596046
+       _cons |  -1.873043   .5799977    -3.23   0.001    -3.011518   -.7345669
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2630           0        2630     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m4
+
+. esttab m1 m2 m3 m4 using 作用机制1.rtf, replace se compress nogap b(%7.4f) sc
+> alars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 作用机制1.rtf not found)
+(output written to 作用机制1.rtf)
+
+. 
+. *表6 吸收能力的强化作用
+. *企业产学研合作情况衡量吸收能力 表6的第（1）列
+. reghdfe Innov AI_utilize Absorptive1_AI Absorptive1 $xx ,absorb(id year)  vce
+> (cluster industry_group#year) 
+(dropped 122 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =      8,009
+Absorbing 2 HDFE groups                           F(   9,    637) =      24.18
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7313
+                                                  Adj R-squared   =     0.6871
+                                                  Within R-sq.    =     0.0384
+Number of clusters (industry_group#year) =        638Root MSE     =     0.6856
+
+                  (Std. err. adjusted for 638 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0368831   .0339087     1.09   0.277    -.0297033    .1034694
+Absorpt~1_AI |   .2447993   .0605033     4.05   0.000     .1259892    .3636093
+ Absorptive1 |   .1448722   .0269216     5.38   0.000     .0920064     .197738
+        Size |     .30867   .0359902     8.58   0.000     .2379963    .3793437
+         Age |  -.3512151   .1837391    -1.91   0.056    -.7120225    .0095924
+         ROA |   .2357741   .1926182     1.22   0.221    -.1424693    .6140175
+    Leverage |   -.092912   .0930993    -1.00   0.319    -.2757306    .0899066
+      Growth |  -.0524395   .0294766    -1.78   0.076    -.1103226    .0054435
+ Rdintensity |   2.163665   .4586774     4.72   0.000     1.262963    3.064368
+       _cons |  -3.722078   .8754827    -4.25   0.000    -5.441259   -2.002897
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1110           0        1110     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m1
+
+. *利用研发投入来衡量吸收能力 表6的第（2)列
+. *gen Absorptive2_AI=Rdintensity*AI_utilize //交互项计算
+. *gen Absorptive2 = Rdintensity
+. reghdfe Innov AI_utilize  Absorptive2_AI Absorptive2 Size Age ROA Leverage Gr
+> owth ,absorb(id year)  vce(cluster industry_group#year)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   8,    833) =      31.69
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7292
+                                                  Adj R-squared   =     0.6786
+                                                  Within R-sq.    =     0.0206
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6781
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0246675   .0341605     0.72   0.470    -.0423832    .0917182
+Absorpt~2_AI |   .4427499   .2644006     1.67   0.094    -.0762197    .9617196
+ Absorptive2 |   1.850598    .304255     6.08   0.000     1.253401    2.447794
+        Size |   .2553328   .0238758    10.69   0.000      .208469    .3021966
+         Age |  -.3010314   .1231161    -2.45   0.015    -.5426856   -.0593772
+         ROA |   .3799772   .1466408     2.59   0.010     .0921483    .6678062
+    Leverage |  -.1682014   .0684003    -2.46   0.014    -.3024586   -.0339443
+      Growth |  -.0695132   .0191501    -3.63   0.000    -.1071013   -.0319252
+       _cons |  -2.683702    .581593    -4.61   0.000    -3.825262   -1.542142
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m2
+
+. esttab m1 m2 using 吸收能力.rtf, replace se compress nogap b(%7.4f) scalars(N
+>  r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 吸收能力.rtf not found)
+(output written to 吸收能力.rtf)
+
+. 
+. ***进一步分析*** 
+. *（1）表A6 企业异质性分析 
+. reghdfe Innov OP_AI AI_utilize  TFP_OP $xx ,absorb(id year)  vce(cluster indu
+> stry_group#year) //OP方法计算生产率
+(dropped 624 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,035
+Absorbing 2 HDFE groups                           F(   9,    825) =      23.65
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7300
+                                                  Adj R-squared   =     0.6803
+                                                  Within R-sq.    =     0.0211
+Number of clusters (industry_group#year) =        826Root MSE     =     0.6792
+
+                  (Std. err. adjusted for 826 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       OP_AI |   .0916797   .0310711     2.95   0.003     .0306921    .1526674
+  AI_utilize |  -.5571001   .2048538    -2.72   0.007    -.9591961    -.155004
+      TFP_OP |   .0701885   .0302195     2.32   0.020     .0108722    .1295047
+        Size |   .2221875   .0255018     8.71   0.000     .1721314    .2722436
+         Age |  -.3295131   .1245078    -2.65   0.008    -.5739025   -.0851237
+         ROA |   .2389164   .1539291     1.55   0.121    -.0632224    .5410552
+    Leverage |  -.1744524   .0684804    -2.55   0.011    -.3088688   -.0400361
+      Growth |  -.0805931   .0195249    -4.13   0.000    -.1189174   -.0422687
+ Rdintensity |   2.342958   .3278961     7.15   0.000     1.699349    2.986567
+       _cons |  -2.341181   .5791814    -4.04   0.000    -3.478024   -1.204339
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2939           0        2939     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m1
+
+. reghdfe Innov LP_AI AI_utilize  TFP_LP $xx ,absorb(id year)  vce(cluster indu
+> stry_group#year) //LP方法计算生产率
+(dropped 624 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,035
+Absorbing 2 HDFE groups                           F(   9,    825) =      23.64
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7301
+                                                  Adj R-squared   =     0.6804
+                                                  Within R-sq.    =     0.0213
+Number of clusters (industry_group#year) =        826Root MSE     =     0.6791
+
+                  (Std. err. adjusted for 826 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       LP_AI |   .0771345    .024787     3.11   0.002     .0284814    .1257876
+  AI_utilize |  -.5931221   .2047152    -2.90   0.004     -.994946   -.1912981
+      TFP_LP |   .0741273   .0301951     2.45   0.014      .014859    .1333957
+        Size |   .2087886   .0269978     7.73   0.000     .1557962     .261781
+         Age |  -.3315257   .1241226    -2.67   0.008    -.5751591   -.0878924
+         ROA |   .2320181   .1536496     1.51   0.131    -.0695719    .5336082
+    Leverage |  -.1808914   .0687288    -2.63   0.009    -.3157954   -.0459874
+      Growth |  -.0813331   .0197609    -4.12   0.000    -.1201206   -.0425456
+ Rdintensity |   2.319073   .3240795     7.16   0.000     1.682955     2.95519
+       _cons |  -2.181094   .5728259    -3.81   0.000    -3.305462   -1.056727
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2939           0        2939     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m2
+
+. reghdfe Innov HC_AI AI_utilize HC $xx ,absorb(id year)  vce(cluster industry_
+> group#year) //HC为人力资本
+(dropped 570 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     14,186
+Absorbing 2 HDFE groups                           F(   9,    719) =      26.35
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7587
+                                                  Adj R-squared   =     0.7080
+                                                  Within R-sq.    =     0.0265
+Number of clusters (industry_group#year) =        720Root MSE     =     0.6605
+
+                  (Std. err. adjusted for 720 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       HC_AI |   .0093588   .0022528     4.15   0.000     .0049359    .0137818
+  AI_utilize |  -.0303101   .0288133    -1.05   0.293    -.0868783    .0262582
+          HC |   .0190557    .003865     4.93   0.000     .0114678    .0266437
+        Size |   .2522736   .0270551     9.32   0.000     .1991571    .3053902
+         Age |  -.3741172   .1640539    -2.28   0.023    -.6961992   -.0520353
+         ROA |   .2064221   .1696969     1.22   0.224    -.1267385    .5395826
+    Leverage |  -.1950173   .0848125    -2.30   0.022    -.3615271   -.0285075
+      Growth |   -.039551   .0228406    -1.73   0.084    -.0843932    .0052912
+ Rdintensity |   1.670367   .3429097     4.87   0.000      .997143    2.343591
+       _cons |  -2.389373   .7448204    -3.21   0.001    -3.851656   -.9270903
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      2441           0        2441     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m3
+
+. esttab m1 m2 m3 using 企业异质性.rtf, replace se compress nogap b(%7.4f) scal
+> ars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 企业异质性.rtf not found)
+(output written to 企业异质性.rtf)
+
+. 
+. *（2）表A7 行业异质性分析 
+. *劳动密集型为0，资本密集型为1，技术密集型为2
+. reghdfe Innov AI_utilize $xx if ysmjd==0,absorb(id year ) vce(cluster industr
+> y_group#year)
+(dropped 136 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      2,928
+Absorbing 2 HDFE groups                           F(   7,    405) =       3.58
+Statistics robust to heteroskedasticity           Prob > F        =     0.0010
+                                                  R-squared       =     0.7169
+                                                  Adj R-squared   =     0.6519
+                                                  Within R-sq.    =     0.0129
+Number of clusters (industry_group#year) =        406Root MSE     =     0.6480
+
+                  (Std. err. adjusted for 406 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |    .158319   .1220851     1.30   0.195    -.0816806    .3983187
+        Size |   .1890039    .056979     3.32   0.001     .0769923    .3010155
+         Age |   .5703372   .2734506     2.09   0.038     .0327775    1.107897
+         ROA |  -.3180019   .3315087    -0.96   0.338    -.9696945    .3336907
+    Leverage |  -.4103562   .1780074    -2.31   0.022    -.7602901   -.0604223
+      Growth |   .0731602   .0426598     1.71   0.087    -.0107022    .1570225
+ Rdintensity |   2.403252   1.382742     1.74   0.083    -.3149945    5.121499
+       _cons |  -3.970376   1.530082    -2.59   0.010     -6.97827   -.9624822
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |       527           0         527     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m1
+
+. reghdfe Innov AI_utilize $xx if ysmjd==1,absorb(id year )  vce(cluster indust
+> ry_group#year)
+(dropped 181 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      4,937
+Absorbing 2 HDFE groups                           F(   7,    219) =       5.76
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6722
+                                                  Adj R-squared   =     0.6089
+                                                  Within R-sq.    =     0.0095
+Number of clusters (industry_group#year) =        220Root MSE     =     0.6512
+
+                  (Std. err. adjusted for 220 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |  -.0640285   .0802189    -0.80   0.426    -.2221283    .0940713
+        Size |   .1812111   .0409505     4.43   0.000     .1005037    .2619186
+         Age |  -.4142177   .2047775    -2.02   0.044    -.8178046   -.0106308
+         ROA |   .2768505   .3064499     0.90   0.367    -.3271179    .8808188
+    Leverage |  -.1801453   .1400732    -1.29   0.200    -.4562094    .0959188
+      Growth |  -.0778548   .0358381    -2.17   0.031    -.1484865   -.0072231
+ Rdintensity |    1.76941   .8817428     2.01   0.046     .0316227    3.507198
+       _cons |   -.816276   1.033864    -0.79   0.431    -2.853872     1.22132
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |       780           0         780     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m2
+
+. reghdfe Innov AI_utilize $xx if ysmjd==2,absorb(id year )  vce(cluster indust
+> ry_group#year)
+(dropped 357 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,696
+Absorbing 2 HDFE groups                           F(   7,    200) =      32.18
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7462
+                                                  Adj R-squared   =     0.6981
+                                                  Within R-sq.    =     0.0330
+Number of clusters (industry_group#year) =        201Root MSE     =     0.6907
+
+                  (Std. err. adjusted for 201 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0709032   .0214682     3.30   0.001       .02857    .1132363
+        Size |   .3447216   .0301897    11.42   0.000     .2851907    .4042525
+         Age |   -.552779   .1777152    -3.11   0.002     -.903215    -.202343
+         ROA |   .4502929   .1840244     2.45   0.015     .0874158    .8131699
+    Leverage |  -.0727938    .090108    -0.81   0.420    -.2504774    .1048898
+      Growth |  -.0879971   .0258746    -3.40   0.001     -.139019   -.0369751
+ Rdintensity |   1.873671   .3443216     5.44   0.000     1.194705    2.552638
+       _cons |  -3.809082    .786551    -4.84   0.000    -5.360078   -2.258085
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1846           0        1846     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m3
+
+. reghdfe Innov KRR $xx if ysmjd==2,absorb(id year)  vce(cluster industry_group
+> #year)
+(dropped 357 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,696
+Absorbing 2 HDFE groups                           F(   7,    200) =      32.28
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7460
+                                                  Adj R-squared   =     0.6978
+                                                  Within R-sq.    =     0.0321
+Number of clusters (industry_group#year) =        201Root MSE     =     0.6911
+
+                  (Std. err. adjusted for 201 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         KRR |    .009444   .0792551     0.12   0.905    -.1468389    .1657269
+        Size |   .3495458   .0305024    11.46   0.000     .2893983    .4096934
+         Age |  -.5571506   .1787937    -3.12   0.002    -.9097132   -.2045879
+         ROA |   .4386839   .1836151     2.39   0.018      .076614    .8007539
+    Leverage |  -.0752467   .0902071    -0.83   0.405    -.2531258    .1026324
+      Growth |  -.0887062   .0258149    -3.44   0.001    -.1396106   -.0378019
+ Rdintensity |   1.898068   .3451614     5.50   0.000     1.217446    2.578691
+       _cons |  -3.887198   .7940208    -4.90   0.000    -5.452924   -2.321471
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1846           0        1846     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m4
+
+. reghdfe Innov NLP $xx if ysmjd==2 ,absorb(id year )  vce(cluster industry_gro
+> up#year)
+(dropped 357 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,696
+Absorbing 2 HDFE groups                           F(   7,    200) =      32.25
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7460
+                                                  Adj R-squared   =     0.6979
+                                                  Within R-sq.    =     0.0323
+Number of clusters (industry_group#year) =        201Root MSE     =     0.6910
+
+                  (Std. err. adjusted for 201 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         NLP |   .0559518   .0350339     1.60   0.112    -.0131315    .1250351
+        Size |   .3479487   .0305146    11.40   0.000     .2877771    .4081202
+         Age |  -.5579492   .1785357    -3.13   0.002     -.910003   -.2058954
+         ROA |   .4441016   .1839036     2.41   0.017     .0814629    .8067404
+    Leverage |  -.0744026   .0900459    -0.83   0.410    -.2519639    .1031586
+      Growth |  -.0885829    .025837    -3.43   0.001    -.1395307   -.0376351
+ Rdintensity |   1.897639    .343181     5.53   0.000     1.220922    2.574357
+       _cons |  -3.854509   .7931693    -4.86   0.000    -5.418556   -2.290462
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1846           0        1846     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m5
+
+. reghdfe Innov CV $xx if ysmjd==2,absorb(id year)  vce(cluster industry_group#
+> year)
+(dropped 357 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,696
+Absorbing 2 HDFE groups                           F(   7,    200) =      31.65
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7463
+                                                  Adj R-squared   =     0.6981
+                                                  Within R-sq.    =     0.0333
+Number of clusters (industry_group#year) =        201Root MSE     =     0.6907
+
+                  (Std. err. adjusted for 201 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          CV |    .115137   .0338158     3.40   0.001     .0484558    .1818182
+        Size |   .3458791   .0301231    11.48   0.000     .2864794    .4052787
+         Age |  -.5463948   .1788105    -3.06   0.003    -.8989905   -.1937991
+         ROA |   .4441486   .1847551     2.40   0.017     .0798307    .8084665
+    Leverage |  -.0712373   .0905369    -0.79   0.432    -.2497666     .107292
+      Growth |  -.0877799   .0259292    -3.39   0.001    -.1389096   -.0366501
+ Rdintensity |   1.878965   .3469239     5.42   0.000     1.194867    2.563063
+       _cons |  -3.849777   .7853557    -4.90   0.000    -5.398417   -2.301137
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1846           0        1846     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m6
+
+. reghdfe Innov ML $xx if ysmjd==2 ,absorb(id year )  vce(cluster industry_grou
+> p#year)
+(dropped 357 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,696
+Absorbing 2 HDFE groups                           F(   7,    200) =      31.82
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7460
+                                                  Adj R-squared   =     0.6979
+                                                  Within R-sq.    =     0.0324
+Number of clusters (industry_group#year) =        201Root MSE     =     0.6910
+
+                  (Std. err. adjusted for 201 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+       Innov | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          ML |   .0635275   .0370101     1.72   0.088    -.0094526    .1365076
+        Size |    .347702   .0304955    11.40   0.000     .2875681    .4078359
+         Age |  -.5620321   .1779586    -3.16   0.002     -.912948   -.2111161
+         ROA |    .443437   .1834927     2.42   0.017     .0816085    .8052656
+    Leverage |  -.0744581   .0898391    -0.83   0.408    -.2516116    .1026953
+      Growth |  -.0887628   .0258491    -3.43   0.001    -.1397346   -.0377909
+ Rdintensity |   1.895844   .3440036     5.51   0.000     1.217504    2.574183
+       _cons |   -3.83698   .7922378    -4.84   0.000    -5.399191   -2.274769
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1846           0        1846     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m7
+
+. esttab m1 m2 m3 m4 m5 m6 m7 using 不同行业中AI技术应用的创新影响.rtf, replace
+>  se compress nogap b(%7.4f) scalars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file 不同行业中AI技术应用的创新影响.rtf not found)
+(output written to 不同行业中AI技术应用的创新影响.rtf)
+
+. 
+. *（3）表A8 AI技术应用和企业渐进式与突破式创新
+. * lnincremental表示渐进式创新；lnBreakthrough表示突破式创新
+. reghdfe lnincremental AI_utilize $xx ,absorb(id year)  vce(cluster industry_g
+> roup#year)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =       8.56
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.4139
+                                                  Adj R-squared   =     0.3045
+                                                  Within R-sq.    =     0.0055
+Number of clusters (industry_group#year) =        834Root MSE     =     0.6772
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+lnincremen~l | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0595868   .0249793     2.39   0.017     .0105571    .1086166
+        Size |   .1270924   .0184661     6.88   0.000      .090847    .1633379
+         Age |   -.064394   .1007553    -0.64   0.523    -.2621581      .13337
+         ROA |   .2710612   .1186786     2.28   0.023     .0381169    .5040054
+    Leverage |  -.1085731   .0601285    -1.81   0.071    -.2265944    .0094481
+      Growth |   -.031672   .0166554    -1.90   0.058    -.0643634    .0010194
+ Rdintensity |   .9713523   .3016131     3.22   0.001     .3793413    1.563363
+       _cons |  -2.035536   .4438724    -4.59   0.000    -2.906776   -1.164297
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m1
+
+. reghdfe lnBreakthrough AI_utilize $xx ,absorb(id year)  vce(cluster industry_
+> group#year)
+(dropped 599 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =     19,637
+Absorbing 2 HDFE groups                           F(   7,    833) =      12.93
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.3616
+                                                  Adj R-squared   =     0.2423
+                                                  Within R-sq.    =     0.0067
+Number of clusters (industry_group#year) =        834Root MSE     =     0.5294
+
+                  (Std. err. adjusted for 834 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+lnBreakthr~h | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |   .0279024   .0179632     1.55   0.121    -.0073561    .0631609
+        Size |   .1276964   .0141843     9.00   0.000     .0998552    .1555375
+         Age |  -.0753554   .0791579    -0.95   0.341    -.2307278     .080017
+         ROA |    .007534   .0941733     0.08   0.936    -.1773109     .192379
+    Leverage |  -.1643709   .0481215    -3.42   0.001    -.2588246   -.0699172
+      Growth |  -.0263292   .0147062    -1.79   0.074    -.0551948    .0025364
+ Rdintensity |   .3182561   .1909099     1.67   0.096    -.0564649    .6929771
+       _cons |  -2.010814   .3632824    -5.54   0.000     -2.72387   -1.297757
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      3072           0        3072     |
+        year |        14           1          13     |
+-----------------------------------------------------+
+
+. est store m2
+
+. sort id year
+
+. reghdfe lnBreakthrough l5.AI_utilize $xx ,absorb(id year)  vce(cluster indust
+> ry_group#year)
+(dropped 383 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =      6,693
+Absorbing 2 HDFE groups                           F(   7,    450) =       4.10
+Statistics robust to heteroskedasticity           Prob > F        =     0.0002
+                                                  R-squared       =     0.4372
+                                                  Adj R-squared   =     0.2981
+                                                  Within R-sq.    =     0.0056
+Number of clusters (industry_group#year) =        451Root MSE     =     0.5538
+
+                  (Std. err. adjusted for 451 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+lnBreakthr~h | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |
+         L5. |   .0704049   .0360266     1.95   0.051    -.0003963    .1412062
+             |
+        Size |   .1529301   .0328104     4.66   0.000     .0884495    .2174108
+         Age |  -.3544382   .2936922    -1.21   0.228    -.9316168    .2227403
+         ROA |   -.229504   .1743496    -1.32   0.189    -.5721445    .1131364
+    Leverage |  -.1242118   .1065635    -1.17   0.244    -.3336356    .0852121
+      Growth |  -.0159535   .0315895    -0.51   0.614    -.0780347    .0461277
+ Rdintensity |  -.2616497   .3594108    -0.73   0.467    -.9679817    .4446822
+       _cons |   -1.68545   .9952464    -1.69   0.091    -3.641358    .2704579
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1312           0        1312     |
+        year |         9           1           8     |
+-----------------------------------------------------+
+
+. est store m3
+
+. reghdfe lnBreakthrough l6.AI_utilize $xx ,absorb(id year)  vce(cluster indust
+> ry_group#year)
+(dropped 290 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =      5,520
+Absorbing 2 HDFE groups                           F(   7,    380) =       4.07
+Statistics robust to heteroskedasticity           Prob > F        =     0.0003
+                                                  R-squared       =     0.4796
+                                                  Adj R-squared   =     0.3371
+                                                  Within R-sq.    =     0.0076
+Number of clusters (industry_group#year) =        381Root MSE     =     0.5515
+
+                  (Std. err. adjusted for 381 clusters in industry_group#year)
+------------------------------------------------------------------------------
+             |               Robust
+lnBreakthr~h | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  AI_utilize |
+         L6. |   .0963442   .0461331     2.09   0.037     .0056362    .1870523
+             |
+        Size |   .1719672   .0375963     4.57   0.000     .0980442    .2458901
+         Age |    -.63223    .362599    -1.74   0.082    -1.345182    .0807217
+         ROA |   -.192403   .1890141    -1.02   0.309    -.5640475    .1792414
+    Leverage |  -.0765842   .1255523    -0.61   0.542    -.3234485    .1702801
+      Growth |  -.0351609   .0335035    -1.05   0.295    -.1010364    .0307145
+ Rdintensity |  -.8255398   .5051794    -1.63   0.103    -1.818837    .1677572
+       _cons |  -1.245708   1.295563    -0.96   0.337    -3.793079    1.301663
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+          id |      1173           0        1173     |
+        year |         8           1           7     |
+-----------------------------------------------------+
+
+. est store m4
+
+. esttab m1 m2 m3 m4 using AI与渐进式突破式创新.rtf, replace se compress nogap 
+> b(%7.4f) scalars(N r2_a) star(* 0.10 ** 0.05 *** 0.01) 
+(file AI与渐进式突破式创新.rtf not found)
+(output written to AI与渐进式突破式创新.rtf)
+
+. 
+end of do-file
+
+. 
+end of do-file
