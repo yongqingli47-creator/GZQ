@@ -31,13 +31,6 @@ Use this skill to transform a vague request into an execution-ready plan.
 - Avoid broad discovery unless it changes the decision path.
 - Prefer reversible steps early.
 
-## External Workflow References
-
-- Use `Imbad0202/academic-research-skills` as the reference model for multi-stage gating when the task spans question design, evidence collection, drafting, and review.
-- Use `AlterLab-IEU/AlterLab-Academic-Skills` as a menu of specialized workflows when the task crosses disciplines or methods.
-- Keep this repository's plan format as the controlling structure. External skill packs should sharpen stage design, not replace local validation steps.
-- Bring in peer-review simulators or deep-research tools only after the core objective, constraints, and first validation step are already explicit.
-
 ## Procedure
 
 1. Reduce the request to one operational objective.
@@ -45,3 +38,9 @@ Use this skill to transform a vague request into an execution-ready plan.
 3. Break the work into a small number of output-oriented workstreams.
 4. Attach one main risk and one cheapest validation step to each workstream.
 5. Sequence the work so evidence arrives early and blockers surface quickly.
+
+## Stage Gates For End-To-End Research
+
+For work spanning research design through writing, use explicit gates: (1) question and estimand, (2) evidence and data readiness, (3) analysis and validation, (4) synthesis and drafting, and (5) adversarial quality review. Each gate should state its output, unresolved assumptions, and a concrete decision criterion before the next stage expands.
+
+External skill packs, research agents, and tool maps are optional references, not dependencies or quality guarantees. Adopt a tool only for a named bottleneck, verify it with the smallest useful check, and keep the repository's evidence, scripts, and validation criteria as the source of truth.

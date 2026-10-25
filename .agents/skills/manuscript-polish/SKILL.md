@@ -29,13 +29,6 @@ Use this skill when the task is to improve scholarly writing without weakening p
 - Proposed rewrite
 - Why this is stronger
 
-## External Writing And Review References
-
-- Use `hanlulong/econ-writing-skill` as the preferred external reference for economics-style argument, contribution, and prose discipline.
-- Use `claesbackman/AI-research-feedback`, `poldrack/ai-peer-review`, or `kenwilliford/claude-peer-review` when the task benefits from simulated reviewer disagreement or editor-style arbitration.
-- Use `mjyoo2/OverleafMCP` only when revision must stay synchronized with an Overleaf manuscript workflow.
-- Do not route writing tasks through de-AI or "humanizer" tools. Improve precision, evidence alignment, and paragraph logic directly.
-
 ## Procedure
 
 1. Identify the exact claim the passage needs to carry.
@@ -43,3 +36,9 @@ Use this skill when the task is to improve scholarly writing without weakening p
 3. Rewrite only as much as needed to fix the highest-value problems.
 4. Keep contribution and causal language aligned with the actual evidence.
 5. Return a brief diagnosis that the author can use for further revision.
+
+## Automated Review Limits
+
+- Simulated peer review can generate objections and alternative readings; it is an internal stress test, not evidence of actual reviewer agreement or a substitute for expert review.
+- Resolve each generated comment against the manuscript, data, code, and cited sources. Record whether it was accepted, revised, or rejected and why; do not cite simulated feedback as an external authority.
+- Use review simulation after factual and numerical claims have a traceable source. Do not let an agent rewrite results or references without source checks.

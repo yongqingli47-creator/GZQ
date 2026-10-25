@@ -34,14 +34,6 @@ Use this skill for data cleaning, data construction, empirical analysis, and est
 - When reviewing notebooks, separate exploratory cells from reproducible pipeline logic.
 - When asked to clean data, propose a pipeline covering import, schema checks, type conversion, duplicate handling, missing values, outlier rules, derived variables, validation, and export.
 
-## External Analysis Stack
-
-- Use `SepineTam/stata-mcp` or `hanlulong/stata-mcp` when the task is Stata-centered and benefits from command execution, result capture, or data browsing.
-- Use `posit-dev/mcptools` or `gojiplus/r-econometrics-mcp` when the task is R-centered and requires econometric workflows rather than general scripting.
-- Use `datalayer/jupyter-mcp-server` when notebook orchestration or kernel control is the bottleneck.
-- Use `py-why/EconML`, `DoubleML/doubleml-for-py`, `py-why/DoWhy`, or `uber/causalml` when heterogeneous treatment effects, double machine learning, or causal graph workflows are substantively justified.
-- Treat packages and MCP servers as implementation layers. They do not substitute for explicit identification assumptions, sample design, or robustness logic.
-
 ## Procedure
 
 1. Restate the empirical objective, unit of analysis, and expected output.
@@ -49,3 +41,11 @@ Use this skill for data cleaning, data construction, empirical analysis, and est
 3. Propose the smallest reproducible pipeline that can expose schema, sample, or measurement risks quickly.
 4. Define the baseline analysis and the first falsification or robustness checks.
 5. End with the exact validation outputs or files needed before widening scope.
+
+## External Tool And Reproducibility Gate
+
+- Choose the estimator and analysis environment from the research design, estimand, and data structure before choosing an MCP server, package, or agent. A tool directory is a discovery aid, not a validated method recommendation.
+- Treat MCP servers as interfaces to commands and data, and packages as implementations of specified methods. Neither verifies identification assumptions or makes an analysis reproducible by itself.
+- Before connecting a new tool, inspect its primary documentation, license, supported versions, maintenance state, dependencies, data flows, and required credentials or write permissions. Do not send restricted data to an external service without an approved data path.
+- Start with a read-only or dry-run check on a small, non-sensitive fixture and compare the output with a known result or the canonical local implementation.
+- Preserve the exact script/command, package and runtime versions, input identifiers or hashes, seeds, logs, and machine-readable outputs needed to recreate each reported result. Keep exploratory output separate from the result used in the manuscript.

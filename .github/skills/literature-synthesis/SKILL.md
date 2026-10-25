@@ -39,14 +39,6 @@ Use this skill when the task is to collect, compare, organize, or synthesize lit
 - Help reduce reading overload by ranking what must be read now, later, or not at all.
 - When reviewing student notes, identify where summary has replaced analysis.
 
-## External Retrieval And Verification Stack
-
-- Start from repository-local Zotero exports before any live retrieval.
-- Use `54yyyu/zotero-mcp` or `cookjohn/zotero-mcp` when the task needs live Zotero interaction rather than the local snapshot.
-- Use `openags/paper-search-mcp`, `oksure/openalex-research-mcp`, or `xiuyechen/semantic-scholar-mcp` when the local library is too narrow to cover the target question.
-- Use `JonasBaath/mcp-refchecker` when citation validity is a binding risk.
-- Use `Stanford STORM` or `PaperQA2` for exploratory topic mapping, not as substitutes for source-grounded claims about findings.
-
 ## Procedure
 
 1. Define the focal question and the adjacent literatures that genuinely affect it.
@@ -54,3 +46,11 @@ Use this skill when the task is to collect, compare, organize, or synthesize lit
 3. Cluster studies before drafting prose.
 4. Separate consensus, disagreement, and unresolved identification issues.
 5. End with the most defensible positioning options or next-reading priorities.
+
+## Search And Evidence Verification
+
+- Use discovery indexes and paper-search tools to find and map literature; do not treat search snippets, ranking, abstracts, or AI summaries as evidence for a paper's findings.
+- Keep a compact search log for substantial reviews: source/database, query, date, filters, deduplication rule, and screening decisions.
+- Verify bibliographic identity and publication status against the publisher record and a DOI registry or trusted index. Treat aggregators as cross-checks, not final authority when records conflict.
+- Read the cited paper before using a specific result or limitation; record the page, section, or table that supports the claim. Mark abstract-only evidence as provisional.
+- For systematic reviews, define inclusion/exclusion rules before screening, retain a deduplication and screening log, and have a researcher adjudicate AI-prioritized records.
